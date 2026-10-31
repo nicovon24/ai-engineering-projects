@@ -1,0 +1,27 @@
+{
+  "version": "synthetic-pdf-1.0",
+  "cases": [
+    {
+      "id": "en-metadata",
+      "locale": "en",
+      "question": "Where does Project Orion store metadata?",
+      "expectedEvidence": [
+        { "contains": "stores metadata in PostgreSQL", "page": 1 }
+      ]
+    },
+    {
+      "id": "es-cross-language",
+      "locale": "es",
+      "question": "¿Dónde guarda Project Orion los metadatos?",
+      "expectedEvidence": [
+        { "contains": "stores metadata in PostgreSQL", "page": 1 }
+      ]
+    },
+    {
+      "id": "en-no-evidence",
+      "locale": "en",
+      "question": "What is the chief executive salary?",
+      "expectedEvidence": []
+    }
+  ]
+}
