@@ -6,6 +6,14 @@ Run `python evals/generate_format_fixtures.py` from the application directory. T
 
 DI-005 still needs representative parsed documents, labeled answer expectations, and broader retrieval and answer metrics.
 
-The first narrow retrieval corpus is now in `retrieval-cases.json`. Run `node evals/run-retrieval.mjs` to reproduce its keyless passage-recall and empty-result baseline; see [retrieval-baseline.md](retrieval-baseline.md) for the observed result and limits. It does not yet cover model answers or document parsing.
+The first narrow retrieval corpus is now in `retrieval-cases.json`. Run `node evals/run-retrieval.mjs` to reproduce its keyless passage recall, annotated precision, empty-result, and local retrieval-timing baseline; see [retrieval-baseline.md](retrieval-baseline.md) for the observed result and limits. It does not yet cover model answers or document parsing.
 
 The retrieval runner imports the TypeScript retrieval module directly and was checked with Node.js 24.15.0. Older Node.js versions may need a TypeScript runner.
+
+[Representative source research](representative-sources.md) records candidate public PDF and DOCX documents, rights, and initial labeling ideas. It is a research note, not an observed parser or retrieval result.
+
+Run `node evals/storage-verification.mjs` for the isolated DI-004 local storage checks. [Its report](storage-verification.md) states the observed results and the HTTP, provider, and multi-instance behavior it does not cover.
+
+Run `python evals/generate_format_fixtures.py` and then `node evals/run-parsed-retrieval.mjs` for the [synthetic parsed PDF/DOCX baseline](parsed-retrieval-baseline.md). It exercises the application's parser and retriever but does not replace evaluation on representative documents.
+
+Run `node evals/answer-contract-verification.mjs` for [mocked answer-contract checks](answer-contract-verification.md). This uses a synthetic key and mocked `fetch`; it does not call Groq or score semantic support.

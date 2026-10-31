@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "description": "Synthetic, generated PDF and DOCX facts for a keyless parsed-document retrieval check. Labels refer to text observed after application parsing.",
+  "documents": [
+    {
+      "id": "architecture-pdf",
+      "fixture": "eval-architecture.pdf",
+      "expectedPageCount": 1,
+      "expectedPage": 1,
+      "expectedText": "Project Orion stores metadata in PostgreSQL. Original files are kept in object storage"
+    },
+    {
+      "id": "maintenance-docx",
+      "fixture": "eval-maintenance.docx",
+      "expectedPageCount": null,
+      "expectedPage": null,
+      "expectedText": "La inspeccion semanal revisa sensores y registra fallos en el cuaderno de mantenimiento."
+    }
+  ],
+  "cases": [
+    {
+      "id": "en-pdf-metadata",
+      "locale": "en",
+      "question": "Where does Project Orion store metadata in PostgreSQL?",
+      "expectedEvidence": [{ "documentId": "architecture-pdf", "contains": "stores metadata in PostgreSQL" }]
+    },
+    {
+      "id": "en-pdf-originals",
+      "locale": "en",
+      "question": "Where are original files kept in object storage?",
+      "expectedEvidence": [{ "documentId": "architecture-pdf", "contains": "Original files are kept in object storage" }]
+    },
+    {
+      "id": "es-docx-inspection",
+      "locale": "es",
+      "question": "¿Qué revisa la inspeccion semanal de sensores?",
+      "expectedEvidence": [{ "documentId": "maintenance-docx", "contains": "inspeccion semanal revisa sensores" }]
+    },
+    {
+      "id": "en-cross-language-docx",
+      "locale": "en",
+      "question": "What does the weekly inspection record?",
+      "expectedEvidence": [{ "documentId": "maintenance-docx", "contains": "registra fallos" }]
+    },
+    {
+      "id": "es-cross-language-pdf",
+      "locale": "es",
+      "question": "¿Dónde se guardan los metadatos?",
+      "expectedEvidence": [{ "documentId": "architecture-pdf", "contains": "stores metadata" }]
+    },
+    {
+      "id": "mixed-multi-file",
+      "locale": "en",
+      "question": "Where is PostgreSQL metadata and dónde registra fallos?",
+      "expectedEvidence": [
+        { "documentId": "architecture-pdf", "contains": "metadata in PostgreSQL" },
+        { "documentId": "maintenance-docx", "contains": "registra fallos" }
+      ]
+    },
+    { "id": "en-no-evidence", "locale": "en", "question": "What is the chief executive salary?", "expectedEvidence": [] },
+    { "id": "es-no-evidence", "locale": "es", "question": "¿Cuál es el salario del director ejecutivo?", "expectedEvidence": [] }
+  ]
+}

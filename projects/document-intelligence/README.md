@@ -51,7 +51,7 @@ These repositories are learning references, not specifications or sources of pro
 
 ## Status
 
-In progress as a local prototype. The bilingual interface has a responsive document conversation layout, local shadcn/ui controls, and persistent light/dark themes. File intake, lexical retrieval, evidence-only mode without a key, optional server-side Groq answers, structural citation ID checks, atomic question quota reservations, and manual deletion are implemented locally. Synthetic format checks and a small versioned retrieval baseline are documented under `evals/`; they do not establish broad parser compatibility or answer quality. Semantic citation support, automatic background cleanup, global abuse controls, and production persistence are not implemented.
+In progress as a local prototype. The bilingual interface has a responsive document conversation layout, local shadcn/ui controls, and persistent light/dark themes. File intake, lexical retrieval, evidence-only mode without a key, optional server-side Groq answers, structural citation ID checks, atomic question quota reservations, and manual deletion are implemented locally. Synthetic format and parsed PDF/DOCX retrieval checks, mocked answer-contract checks, and one-process storage checks are documented under `evals/`; they do not establish broad parser compatibility, semantic citation support, or actual model quality. Automatic background cleanup, global abuse controls, and production persistence are not implemented.
 
 ## Run locally
 

@@ -26,13 +26,16 @@ Keep at most **ten** dated entries, newest first. Older details belong in Git an
 
 | Date | Change | Evidence |
 | --- | --- | --- |
+| 2026-10-31 | Added parsed PDF/DOCX retrieval and mocked answer-contract checkpoints; rejected blank model claims. | Synthetic parsed baseline: 2 files, 8 cases, recall@5 and annotated precision 0.67; answer runner: 19/19 checks; independent re-reviews found no narrow-scope blocker. |
+| 2026-10-31 | Verified local storage behavior and fixed late saving from expired question reservations. | `evals/storage-verification.mjs` passed 19 synthetic checks; full lint and typecheck passed; independent DI-004 re-review found no local blocker. |
+| 2026-10-31 | Added annotated precision and diagnostic retrieval timing to the narrow synthetic baseline. | `evals/run-retrieval.mjs`: 8 cases, recall@5 0.83, annotated precision 0.64, empty result 2/2; real documents remain pending. |
 | 2026-10-31 | Redesigned the document workspace with local shadcn/ui controls, responsive conversation and source regions, translated file picker, and persistent light/dark themes. | `src/app/`; Playwright CLI at 1280, 390, and 320 px; lint, typecheck, build passed; independent review found no remaining UI-001 blocker. |
 | 2026-10-31 | Verified synthetic intake and provenance cases, including the 10-page boundary and rejected inputs. | `evals/format-verification.md`; Playwright CLI and local workspace metadata. |
 | 2026-10-31 | Added a versioned, keyless lexical retrieval baseline and recorded its cross-language failure. | `evals/retrieval-cases.json`, `evals/run-retrieval.mjs`, `evals/retrieval-baseline.md`; 8 synthetic cases, 5/6 expected-passage recall@5. |
 | 2026-10-31 | Recorded SDD requirements, design, task status, and public-readiness acceptance. | `docs/features/`, `docs/specs/tasks.md`; compare with code before trusting status. |
 | 2026-10-31 | Added atomic question reservations and rejected answers whose source documents changed mid-request. | `src/lib/storage.ts`, question route; lint, typecheck, and build exited 0. Concurrency checks remain pending. |
 | 2026-10-31 | Corrected the Groq output-status instruction after a synthetic response used `ok` instead of the required `answered`. | `src/lib/answer.ts`; one subsequent synthetic TXT browser flow returned a cited answer. |
-| 2026-10-31 | Added the bilingual app shell, local intake, lexical retrieval, source panel, and manual deletion. | `src/app/`, `src/lib/`; the repository files are untracked, so the initial Git commit is not evidence of implementation. |
+| 2026-10-31 | Added the bilingual app shell, local intake, lexical retrieval, source panel, and manual deletion. | `src/app/`, `src/lib/`; published in `dd2c094`, with later work compared against the current tree. |
 
 ## Resume next
 

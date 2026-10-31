@@ -17,4 +17,26 @@
 
 ## Current review status
 
-An independent review of the current code against REQ-001 through REQ-008 has not yet been recorded. Lint, typecheck, build, and one synthetic TXT browser flow are evidence of narrower behavior only. A future reviewer should examine the exact code revision and acceptance, report findings by requirement, and record requested versus runtime-confirmed model separately.
+An independent review of the full current code against REQ-001 through REQ-008 has not yet been recorded. The focused DI-004 review below covers its local storage contract only. Lint, typecheck, build, and one synthetic TXT browser flow are evidence of narrower behavior. A future full-scope reviewer should examine the exact code revision and acceptance, report findings by requirement, and record requested versus runtime-confirmed model separately.
+
+## DI-004 local storage review, 2026-10-31
+
+- Implementer creation and follow-up were observed through `collaboration.spawn_agent` and `collaboration.followup_task` for `/root/di004_verification`; messages and final delivery were received. Requested model and effort: `gpt-6-sol`, medium. Runtime-confirmed model and effort: **unconfirmed**.
+- Reviewer creation and follow-up were observed through `collaboration.spawn_agent` and `collaboration.followup_task` for `/root/di004_review`; messages and final verdict were received. Requested model and effort: `gpt-6-sol`, high. Runtime-confirmed model and effort: **unconfirmed**; the runtime did not expose a separate session ID.
+- The initial review found that `addQuestion` accepted a reservation older than two minutes unless another reservation had pruned it, and that manual deletion verification checked metadata rather than the original file path. The implementer corrected `src/lib/storage.ts` and the focused verifier. The reviewer then re-examined the updated code and reported **no blocker for REQ-006/REQ-007 in the local prototype**.
+- The implementer reported `node evals/storage-verification.mjs` at 19/19 checks, focused ESLint, typecheck, and build with exit 0. The coordinator additionally observed full `npm run lint` and `npm run typecheck` with exit 0 after the fix. These checks exercise storage in one process with synthetic data; HTTP cookie behavior, provider failure, cross-instance limits, and real elapsed 24-hour retention are not proven.
+- The reviewer noted that file-absence checks accept any read error rather than specifically `ENOENT`. This is a minor test precision limitation; code inspection shows recursive removal of the workspace directory.
+
+## DI-005 synthetic parsed-document review, 2026-10-31
+
+- Implementer creation and delivery were observed through `collaboration.spawn_agent` and final return for `/root/di005_parsed_eval`. Requested model and effort: `gpt-6-sol`, medium; runtime-confirmed model and effort: **unconfirmed**.
+- Independent reviewer creation and re-review were observed through `collaboration.spawn_agent` and `collaboration.followup_task` for `/root/di005_review`. Requested model and effort: `gpt-6-sol`, high; runtime-confirmed model and effort: **unconfirmed**. No separate session ID was exposed.
+- The reviewer ran `node evals/run-parsed-retrieval.mjs --json` with exit 0 and reproduced two parsed synthetic files, two passages, eight cases, macro recall@5 and annotated precision both 0.67, and empty results 2/2. An initial low-severity median calculation finding was corrected and the reviewer rechecked the conventional median. The narrow synthetic checkpoint has **no remaining blocker**.
+- REQ-008 and DI-005 remain **in progress**. The cases do not cover a scanned PDF in this runner, representative real documents, model answers, semantic support, refusal, full latency, or cost. The existing DI-002 format review covered a textless PDF rejection separately.
+
+## DI-003 answer-contract review, 2026-10-31
+
+- Implementer creation, follow-up, and final delivery were observed through `collaboration.spawn_agent` and `collaboration.followup_task` for `/root/di003_answer_contract`. Requested model and effort: `gpt-6-sol`, medium; runtime-confirmed model and effort: **unconfirmed**.
+- Independent reviewer creation, follow-up, and final verdict were observed through the same runtime tools for `/root/di003_review`. Requested model and effort: `gpt-6-sol`, high; runtime-confirmed model and effort: **unconfirmed**. No separate reviewer session ID was exposed.
+- The first review found that whitespace-only claim text could pass Zod validation as an `answered` result. The implementer added trim and nonblank validation plus mocked cases. The reviewer ran the updated `node evals/answer-contract-verification.mjs` and observed **19/19 checks, exit 0**, with no blocker in the narrow answer-contract scope.
+- The implementer reported lint, typecheck, and build with exit 0 after the fix; the coordinator also reran the focused answer verifier and observed 19/19. The runner uses synthetic passages, a synthetic key, and mocked `fetch`. It does not establish actual Groq behavior, semantic support, browser/HTTP integration, full latency, or cost. Citation IDs establish retrieved-passage membership only.

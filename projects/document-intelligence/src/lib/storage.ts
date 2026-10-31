@@ -151,7 +151,8 @@ export async function addQuestion(token: string, reservationId: string, record: 
   return withWorkspaceLock(token, async () => {
     const workspace = await readWorkspace(token);
     if (!workspace) throw new AppError("session_expired");
-    if (!(workspace.pendingQuestions ?? []).some((reservation) => reservation.id === reservationId)) {
+    const reservation = (workspace.pendingQuestions ?? []).find((item) => item.id === reservationId);
+    if (!reservation || !(Date.parse(reservation.reservedAt) > Date.now() - QUESTION_RESERVATION_TTL_MS)) {
       throw new AppError("workspace_changed");
     }
     const availableIds = new Set(workspace.documents.flatMap((document) => document.passages.map((passage) => passage.id)));

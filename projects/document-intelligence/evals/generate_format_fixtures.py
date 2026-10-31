@@ -8,7 +8,7 @@ OUTPUT = Path(__file__).parent / "fixtures" / "formats"
 SAMPLE = "Project Orion uses PostgreSQL for metadata and stores source documents separately."
 
 
-def pdf_bytes(page_count: int, include_text: bool = True) -> bytes:
+def pdf_bytes(page_count: int, include_text: bool = True, sample: str = SAMPLE) -> bytes:
     objects: list[bytes] = []
 
     def add(body: bytes) -> int:
@@ -21,7 +21,7 @@ def pdf_bytes(page_count: int, include_text: bool = True) -> bytes:
     page_ids: list[int] = []
     for index in range(page_count):
         text = (
-            f"BT /F1 12 Tf 72 720 Td ({SAMPLE} Page {index + 1}.) Tj ET".encode("ascii")
+            f"BT /F1 12 Tf 72 720 Td ({sample} Page {index + 1}.) Tj ET".encode("ascii")
             if include_text
             else b""
         )
@@ -58,11 +58,11 @@ def pdf_bytes(page_count: int, include_text: bool = True) -> bytes:
     return bytes(output)
 
 
-def make_docx(path: Path) -> None:
+def make_docx(path: Path, sample: str = SAMPLE) -> None:
     content = (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-        f"<w:body><w:p><w:r><w:t>{SAMPLE}</w:t></w:r></w:p></w:body></w:document>"
+        f"<w:body><w:p><w:r><w:t>{sample}</w:t></w:r></w:p></w:body></w:document>"
     )
     with ZipFile(path, "w", ZIP_DEFLATED) as archive:
         archive.writestr("[Content_Types].xml", (
@@ -94,6 +94,14 @@ def main() -> None:
     (OUTPUT / "invalid.txt").write_bytes(b"\xff\xfe\x00")
     (OUTPUT / "oversized.txt").write_bytes(b"A" * (10 * 1024 * 1024 + 1))
     make_docx(OUTPUT / "notes.docx")
+    (OUTPUT / "eval-architecture.pdf").write_bytes(pdf_bytes(
+        1,
+        sample="Project Orion stores metadata in PostgreSQL. Original files are kept in object storage",
+    ))
+    make_docx(
+        OUTPUT / "eval-maintenance.docx",
+        "La inspeccion semanal revisa sensores y registra fallos en el cuaderno de mantenimiento.",
+    )
 
 
 if __name__ == "__main__":

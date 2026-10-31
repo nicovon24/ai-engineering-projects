@@ -1,0 +1,14 @@
+# Candidate source documents for DI-005
+
+Status: source research only. None of these documents has been downloaded or parsed by this application in this checkpoint. Keep any local copies under ignored `evals/fixtures/formats/` until the selected corpus, attribution, and labels are reviewed.
+
+| Candidate | Source and rights | Why use it | Current gap |
+| --- | --- | --- | --- |
+| HHU SeLL, *Steckbrief: Das ILIAS-Objekt „Ordner“* | [Publisher listing](https://www.sell.hhu.de/en/medien-und-materialien/oer-angebot-des-sell), [one-page PDF](https://www.sell.hhu.de/fileadmin/E-Learning/Downloads/ILIAS-Anleitungen/Steckbrief-ILIAS_Ordner.pdf), [DOCX](https://www.sell.hhu.de/fileadmin/E-Learning/Downloads/ILIAS-Anleitungen/Steckbrief-ILIAS_Ordner.docx). The publisher lists the ILIAS briefs and editable DOCX files under CC BY 4.0; the PDF credits Elisabeth Scherer and Peter Bernardi for SeLL. | A real PDF and its corresponding DOCX can check extraction consistency. German source text with Spanish and English questions tests a known cross-language weakness. | The DOCX link is listed by the publisher, but the binary has not been fetched locally or parsed. Record attribution and any changes if redistributed. |
+| Congress.gov, *Constitutional Authority Statements: Suggested Citations for Commonly Introduced Legislation* | [Official five-page PDF](https://constitution.congress.gov/static/files/constitutional-authority-statements.pdf). [GovInfo reuse policy](https://www.govinfo.gov/about) describes the usual public-domain status of official United States government work and warns about third-party material. | A second layout with a table and specific page-linked answers can reveal parser and passage-boundary issues. | Document-specific reuse and embedded third-party content need checking before bundling. The PDF has not been parsed locally. |
+
+## Initial labeling plan
+
+For the HHU brief, label the passage about the three ways to add a folder, the passage about permissions for course members, and an unsupported question about maximum folder file size. Ask each in Spanish and English, plus one German control question to distinguish multilingual retrieval from parsing failure. For the Congress.gov PDF, label the page supporting the post-office power, the page supporting the income-tax amendment, and an unsupported question about postal rates. Keep expected passage IDs tied to the *actual parser output* rather than inventing them from the web copy.
+
+Record each file's source URL, author, license, checksum, download date, page count, parser result, and whether it may be redistributed. Then run retrieval and answer evaluations without presenting a valid citation ID as proof of factual support. The current environment could read the publisher pages but direct binary downloads failed through its network proxy, so this milestone remains open until files are available locally.

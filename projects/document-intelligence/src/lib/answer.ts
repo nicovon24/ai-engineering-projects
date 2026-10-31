@@ -5,10 +5,12 @@ import type { AnswerClaim, Locale, Passage } from "./types";
 const modelAnswerSchema = z.object({
   status: z.enum(["answered", "insufficient_evidence"]),
   claims: z.array(z.object({
-    text: z.string().min(1).max(500),
+    text: z.string().trim().min(1).max(500),
     passageIds: z.array(z.string()).min(1).max(3),
   })).max(5),
-});
+}).refine((answer) =>
+  answer.status === "answered" ? answer.claims.length > 0 : answer.claims.length === 0,
+);
 
 export async function generateAnswer(
   question: string,
@@ -58,8 +60,13 @@ export async function generateAnswer(
 
   if (response.status === 429) throw new AppError("provider_limited");
   if (!response.ok) throw new AppError("provider_unavailable");
-  const payload = await response.json() as { choices?: { message?: { content?: string } }[] };
-  const content = payload.choices?.[0]?.message?.content;
+  let payload: { choices?: { message?: { content?: string } }[] };
+  try {
+    payload = await response.json() as typeof payload;
+  } catch {
+    throw new AppError("provider_invalid_answer");
+  }
+  const content = payload?.choices?.[0]?.message?.content;
   if (!content) throw new AppError("provider_invalid_answer");
 
   let parsed: z.infer<typeof modelAnswerSchema>;
@@ -69,7 +76,6 @@ export async function generateAnswer(
     throw new AppError("provider_invalid_answer");
   }
   if (parsed.status === "insufficient_evidence") return { status: "insufficient_evidence", claims: [] };
-  if (parsed.claims.length === 0) return { status: "insufficient_evidence", claims: [] };
 
   const allowedIds = new Set(passages.map((passage) => passage.id));
   if (parsed.claims.some((claim) => claim.passageIds.some((id) => !allowedIds.has(id)))) {
