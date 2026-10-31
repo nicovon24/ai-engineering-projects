@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "description": "Synthetic Project Orion passages for a keyless lexical retrieval baseline. These are evaluation data, not claims about Document Intelligence or a real organization.",
+  "documents": [
+    {
+      "id": "architecture",
+      "name": "architecture.md",
+      "passages": [
+        {
+          "id": "arch-storage",
+          "text": "Project Orion stores metadata in PostgreSQL. Original documents are stored separately in object storage."
+        },
+        {
+          "id": "arch-access",
+          "text": "Each visitor receives a temporary workspace token that scopes access to their own documents."
+        }
+      ]
+    },
+    {
+      "id": "retention",
+      "name": "retention.md",
+      "passages": [
+        {
+          "id": "retention-window",
+          "text": "Workspace access expires 24 hours after a successful upload or a saved question. Reading a file does not renew access."
+        },
+        {
+          "id": "retention-delete",
+          "text": "A visitor can manually delete the temporary workspace and its files at any time."
+        }
+      ]
+    },
+    {
+      "id": "evaluation",
+      "name": "evaluation.md",
+      "passages": [
+        {
+          "id": "eval-citations",
+          "text": "Citation identifiers are checked against retrieved passages. Human review checks whether each passage actually supports its claim."
+        }
+      ]
+    },
+    {
+      "id": "procedimientos",
+      "name": "procedimientos.md",
+      "passages": [
+        {
+          "id": "es-inspection",
+          "text": "La inspección semanal revisa los sensores y registra cualquier fallo en el cuaderno de mantenimiento."
+        }
+      ]
+    }
+  ],
+  "cases": [
+    { "id": "en-metadata", "locale": "en", "question": "Where is Project Orion metadata stored?", "expectedPassageIds": ["arch-storage"] },
+    { "id": "en-retention", "locale": "en", "question": "When does workspace access expire?", "expectedPassageIds": ["retention-window"] },
+    { "id": "en-citation-check", "locale": "en", "question": "How are citation identifiers checked?", "expectedPassageIds": ["eval-citations"] },
+    { "id": "es-same-language", "locale": "es", "question": "¿Qué revisa la inspección semanal de los sensores?", "expectedPassageIds": ["es-inspection"] },
+    { "id": "es-to-en-metadata", "locale": "es", "question": "¿Dónde se guardan los metadatos?", "expectedPassageIds": ["arch-storage"] },
+    { "id": "en-two-files", "locale": "en", "question": "Where are original documents stored, and when does workspace access expire?", "expectedPassageIds": ["arch-storage", "retention-window"] },
+    { "id": "en-no-evidence", "locale": "en", "question": "What is the chief executive salary?", "expectedPassageIds": [] },
+    { "id": "es-no-evidence", "locale": "es", "question": "¿Cuál es el salario del director ejecutivo?", "expectedPassageIds": [] }
+  ]
+}

@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.data/
+.env.local
+.env
+.env.*
+!.env.example
+.env.*.local
+*.tsbuildinfo
+.playwright-cli/
+.impeccable/review/
+/projects/document-intelligence/evals/fixtures/formats/
+/projects/*/.impeccable/review/
