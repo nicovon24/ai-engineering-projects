@@ -16,7 +16,7 @@ The [project agent guide](../../../AGENTS.md) contains the current upload and qu
 | --- | --- | --- |
 | Local persistence | Original bytes and JSON live in `.data/workspaces/`; random token in an HttpOnly cookie selects the workspace. | Runs without a database or API key. A multi-instance public deployment needs database metadata and object storage. PostgreSQL is recommended but not installed. |
 | Source identity | A passage ID hashes document ID, page, offsets, and text. PDF passages carry page numbers; DOCX/TXT/MD passages have extracted-text offsets. | IDs and offsets make sources inspectable. A real ID alone does not prove semantic support. |
-| Retrieval | Case-normalized lexical term overlap, top five passages. | Deterministic and keyless. Cross-language questions may miss evidence; measure this before adding multilingual embeddings or another approach. |
+| Retrieval | Case-normalized lexical term overlap, top five passages. A narrowly recognized overview request over exactly one document samples up to five passages across the document in source order. | Deterministic and keyless. The overview path gives Groq or evidence-only mode source coverage without treating a generic question as a failed lexical query. It does not solve arbitrary cross-language questions or prove a complete summary. |
 | Generation | One Groq model call receives the locale, question, and retrieved passages; the key stays server-side. | Model output is structured but still untrusted. Unknown citation IDs are rejected. |
 | Quota | Short-lived reservations count with saved questions. Reservations are stored in workspace JSON and expire after two minutes. | Prevents parallel local requests from bypassing the ten-question limit; this is not cross-instance coordination. |
 | Retention | Successful upload or saved question renews 24-hour access. Reads, downloads, and document removal do not. Expired workspaces are deleted on access; manual deletion is immediate. | Scheduled background deletion is required before public use. Provider retention is a separate policy. |
@@ -28,4 +28,5 @@ Conversation history is the saved question list. Execution state includes pendin
 - Do not equate a valid passage ID with a supported claim. Evaluate semantic support on labeled cases and retain human review for ambiguous claims.
 - Do not add specialist agents merely to call the existing stages; evaluate the simple pipeline first.
 - Do not claim support for scanned PDFs until OCR is implemented and evaluated.
+- Do not use sampled overview passages as a fallback for specific questions; a missing lexical match is still an insufficient-evidence result until retrieval improves.
 - Choose a public persistence provider and scheduled cleanup mechanism only when preparing a concrete deployment; local development must remain usable without cloud credentials.

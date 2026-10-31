@@ -10,6 +10,22 @@
       ]
     },
     {
+      "id": "en-document-overview",
+      "locale": "en",
+      "question": "What is the file about?",
+      "expectedEvidence": [
+        { "contains": "stores metadata in PostgreSQL", "page": 1 }
+      ]
+    },
+    {
+      "id": "es-document-overview",
+      "locale": "es",
+      "question": "¿De qué trata este archivo?",
+      "expectedEvidence": [
+        { "contains": "stores metadata in PostgreSQL", "page": 1 }
+      ]
+    },
+    {
       "id": "es-cross-language",
       "locale": "es",
       "question": "¿Dónde guarda Project Orion los metadatos?",

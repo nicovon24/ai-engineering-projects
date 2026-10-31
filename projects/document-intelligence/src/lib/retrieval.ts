@@ -12,7 +12,25 @@ function terms(input: string): string[] {
     .filter((word) => !stopWords.has(word));
 }
 
+function isOverviewQuestion(question: string): boolean {
+  const normalized = question.toLocaleLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+  return /^(what is (the|this|my) (file|document|pdf) about|what does (the|this|my) (file|document|pdf) (cover|describe)|summari[sz]e (the|this|my) (file|document|pdf)|give me a (summary|overview) of (the|this|my) (file|document|pdf)|de que trata (el|este|mi) (archivo|documento|pdf)|resum(e|i|ime) (el|este|mi) (archivo|documento|pdf)|dame un resumen de (el|este|mi) (archivo|documento|pdf))$/.test(normalized);
+}
+
+function representativePassages(passages: Passage[], limit: number): Passage[] {
+  const count = Math.max(0, Math.min(Math.floor(limit), passages.length));
+  if (count <= 1) return passages.slice(0, count);
+  return Array.from({ length: count }, (_, index) =>
+    passages[Math.round(index * (passages.length - 1) / (count - 1))]);
+}
+
 export function retrievePassages(workspace: WorkspaceRecord, question: string, limit = 5): Passage[] {
+  if (workspace.documents.length === 1 && isOverviewQuestion(question)) {
+    return representativePassages(workspace.documents[0].passages, limit);
+  }
   const queryTerms = [...new Set(terms(question))];
   if (queryTerms.length === 0) return [];
 

@@ -45,7 +45,7 @@ python evals/generate_format_fixtures.py
 node evals/run-local-document.mjs --file evals/fixtures/formats/eval-architecture.pdf --cases evals/local-evaluation-example.json
 ```
 
-Observed with one generated PDF page and three cases: one passage, 94 passage characters, two answerable cases, one no-evidence case, recall@5 **1.00**, annotated precision **1.00**, and no-evidence accuracy **1.00**. Retrieval median was **0.418 ms** and p95 **0.561 ms** in this single run. `npx eslint evals/run-local-document.mjs` exited 0.
+Originally observed with one generated PDF page and three cases: one passage, 94 passage characters, two answerable cases, one no-evidence case, recall@5 **1.00**, annotated precision **1.00**, and no-evidence accuracy **1.00**. Retrieval median was **0.418 ms** and p95 **0.561 ms** in that run. `npx eslint evals/run-local-document.mjs` exited 0. The example corpus now also includes English and Spanish overview cases; see [the newer checkpoint](document-overview-checkpoint.md) for its five-case result.
 
 A separate synthetic privacy check used PII-looking input ID and version strings and a BOM-prefixed cases file. Neither input string appeared in stdout or stderr on successful or failed label resolution; the runner emitted `case-001` instead.
 

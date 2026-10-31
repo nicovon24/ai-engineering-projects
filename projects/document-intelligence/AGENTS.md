@@ -28,7 +28,7 @@ Read [PRODUCT.md](PRODUCT.md) for product intent and [README.md](README.md) for 
 | Workspace             | Temporary group of one visitor's documents and questions, addressed by a random session token. It is not an account.                     |
 | Source document       | The original uploaded file. Its name, type, size, page count when available, and passages are recorded with it.                          |
 | Passage               | A chunk of extracted document text with a stable ID, document ID, optional PDF page, and offsets in extracted text.                      |
-| Retrieval             | Selection of passages relevant to a question. The current implementation uses lexical term matching, not embeddings or vector search.    |
+| Retrieval             | Selection of passages relevant to a question. Specific questions use lexical matching; recognized single-document overview requests sample source passages. There are no embeddings or vector search. |
 | Claim                 | One factual sentence in a model-generated answer, with one or more cited passage IDs.                                                    |
 | Citation              | A reference from a claim to an existing passage. A valid ID proves the passage exists; it does not prove the passage supports the claim. |
 | Insufficient evidence | A first-class answer outcome when retrieved material cannot support an answer.                                                           |
@@ -78,7 +78,7 @@ flowchart LR
 flowchart LR
   A[Visitor asks in es or en] --> B[POST /api/questions]
   B --> C[Authorize session and reserve question slot]
-  C --> D[Retrieve up to five lexical passages]
+  C --> D[Retrieve up to five lexical or overview passages]
   D --> E{Passages found?}
   E -- No --> F[Insufficient evidence]
   E -- Yes --> G{Groq key configured?}
@@ -111,7 +111,7 @@ Long-running parsing or OCR may later move to a durable job and worker, with exp
 - `src/app/api/questions/route.ts`: question request coordinator.
 - `src/app/api/documents/[id]/route.ts`: session-scoped original download.
 - `src/lib/parse-document.ts`: extraction and passage creation.
-- `src/lib/retrieval.ts`: lexical passage ranking.
+- `src/lib/retrieval.ts`: lexical passage ranking and narrow single-document overview selection.
 - `src/lib/answer.ts`: optional Groq call and structured answer validation.
 - `src/lib/storage.ts`: local workspace files, session scope, and expiry on access.
 - `src/lib/i18n.ts`, `src/lib/limits.ts`, `src/lib/types.ts`: copy, limits, and shared types.

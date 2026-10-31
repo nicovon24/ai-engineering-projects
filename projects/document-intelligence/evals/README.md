@@ -19,3 +19,5 @@ Run `python evals/generate_format_fixtures.py` and then `node evals/run-parsed-r
 Run `node evals/answer-contract-verification.mjs` for [mocked answer-contract checks](answer-contract-verification.md). This uses a synthetic key and mocked `fetch`; it does not call Groq or score semantic support.
 
 Run `node evals/run-local-document.mjs --file <local-document-path> --cases <case-json-path>` for one keyless local PDF, DOCX, TXT, or MD document. [The runner guide](local-document-evaluation.md) explains private labeling and safe output. [The private-document checkpoint](private-document-baseline.md) records anonymous aggregate results from one real two-page PDF; neither the document nor its case file is in Git.
+
+[The single-document overview checkpoint](document-overview-checkpoint.md) explains the previously observed generic-question miss, the narrow retrieval path, and checks using synthetic and private local files. The private document was not sent to Groq.
