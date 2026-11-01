@@ -12,7 +12,7 @@ function terms(input: string): string[] {
     .filter((word) => !stopWords.has(word));
 }
 
-function isOverviewQuestion(question: string): boolean {
+export function isOverviewQuestion(question: string): boolean {
   const normalized = question.toLocaleLowerCase().normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^\p{L}\p{N}]+/gu, " ")
@@ -47,4 +47,24 @@ export function retrievePassages(workspace: WorkspaceRecord, question: string, l
     .sort((a, b) => b.score - a.score || b.matches - a.matches)
     .slice(0, limit)
     .map((item) => item.passage);
+}
+
+export function retrieveWithRewrites(workspace: WorkspaceRecord, question: string, rewrites: string[]): Passage[] {
+  const queries = [question, ...rewrites];
+  const scores = new Map<string, { passage: Passage; score: number; firstSeen: number }>();
+  let firstSeen = 0;
+  for (const [queryIndex, query] of queries.entries()) {
+    // Search the full bounded workspace so a useful translated hit can compete for the final five slots.
+    const ranked = retrievePassages(workspace, query, Number.MAX_SAFE_INTEGER);
+    ranked.forEach((passage, rank) => {
+      const existing = scores.get(passage.id);
+      const score = (queryIndex === 0 ? 2 : 1) / (rank + 1);
+      if (existing) existing.score += score;
+      else scores.set(passage.id, { passage, score, firstSeen: firstSeen++ });
+    });
+  }
+  return [...scores.values()]
+    .sort((a, b) => b.score - a.score || a.firstSeen - b.firstSeen)
+    .slice(0, 5)
+    .map(({ passage }) => passage);
 }

@@ -8,13 +8,14 @@ Before acting, compare this note with the current code, Git state, [README.md](R
 
 ## Current state
 
-- **In progress:** an independent local Next.js application exists with Spanish and English UI, temporary session-scoped files, lexical retrieval, optional server-side Groq answers, inspectable passages, and manual deletion.
-- **Verified narrowly:** synthetic PDF (1 and 10 pages), DOCX, MD, and TXT intake plus representative rejection paths; one private real two-page PDF parsed and evaluated locally; generic English and Spanish overview questions retrieve sampled passages from a single document; a synthetic Groq answer with an inspectable PDF citation and authorized original download; desktop/mobile light/dark UI and language persistence.
+- **In progress:** an independent local Next.js application exists with Spanish and English UI, temporary session-scoped files, lexical retrieval with optional bounded Groq bilingual query rewrites, optional server-side Groq documentary answers and narrow general fallback, inspectable passages, and manual deletion.
+- **Verified narrowly:** synthetic PDF (1 and 10 pages), DOCX, MD, and TXT intake plus representative rejection paths; one private real two-page PDF parsed and evaluated locally; generic English and Spanish overview questions retrieve sampled passages from a single document; a live synthetic PDF produced a Spanish cited Groq answer and separate general response; 27 mocked bilingual fallback checks; desktop/mobile light/dark UI and language persistence.
 - **Not verified or implemented:** broad real-world PDF/DOCX compatibility, semantic claim support, scheduled background deletion, global abuse controls, and production database/object storage. This is not a public-ready demo.
 
 ## Decisions
 
 - The first version accepts up to three supported files (10 MB each; text PDFs up to 10 pages) and ten questions per workspace. Scanned PDFs are declined until OCR exists.
+- With a key, Groq rewrites only the question and locale into bounded Spanish/English searches. Documentary answers receive selected passages. A separate general response is limited to a small explicit list of educational topics; semantic truth is not proven by its format or filters.
 - Spanish is the initial UI locale; the selected `es` or `en` is passed explicitly to Groq. No-key mode displays evidence rather than an AI answer.
 - Source documents, passages, conversation history, and in-flight question reservations have separate roles. Passage-ID checks establish structural citation validity only.
 - Local `.data/` storage keeps development keyless. PostgreSQL plus object storage is the current public-readiness candidate, not an implemented dependency.
@@ -26,6 +27,7 @@ Keep at most **ten** dated entries, newest first. Older details belong in Git an
 
 | Date | Change | Evidence |
 | --- | --- | --- |
+| 2026-10-31 | Added bilingual Groq query rewriting and a separate, narrow general fallback when documents cannot answer. | [DI-008 checkpoint](evals/bilingual-fallback-checkpoint.md): 27/27 mocks; one live synthetic PDF produced a cited Spanish answer and separate general response; independent review found no code blocker for this bounded scope. |
 | 2026-10-31 | Added narrow, bilingual single-document overview retrieval for generic summary requests. | The observed English question changed from zero to five retrieved passages in a keyless local check; Spanish equivalent also retrieved five; existing no-evidence cases stayed empty. |
 | 2026-10-31 | Added a privacy-safe local document evaluation runner and measured one user-provided PDF without a provider request. | 2 pages, 8 passages, 8 cases; recall@5 0.83, annotated precision 0.32, empty retrieval 2/2; independent synthetic runner review approved its narrow scope. |
 | 2026-10-31 | Added parsed PDF/DOCX retrieval and mocked answer-contract checkpoints; rejected blank model claims. | Synthetic parsed baseline: 2 files, 8 cases, recall@5 and annotated precision 0.67; answer runner: 19/19 checks; independent re-reviews found no narrow-scope blocker. |
@@ -35,10 +37,9 @@ Keep at most **ten** dated entries, newest first. Older details belong in Git an
 | 2026-10-31 | Verified synthetic intake and provenance cases, including the 10-page boundary and rejected inputs. | `evals/format-verification.md`; Playwright CLI and local workspace metadata. |
 | 2026-10-31 | Added a versioned, keyless lexical retrieval baseline and recorded its cross-language failure. | `evals/retrieval-cases.json`, `evals/run-retrieval.mjs`, `evals/retrieval-baseline.md`; 8 synthetic cases, 5/6 expected-passage recall@5. |
 | 2026-10-31 | Recorded SDD requirements, design, task status, and public-readiness acceptance. | `docs/features/`, `docs/specs/tasks.md`; compare with code before trusting status. |
-| 2026-10-31 | Added atomic question reservations and rejected answers whose source documents changed mid-request. | `src/lib/storage.ts`, question route; lint, typecheck, and build exited 0. Concurrency checks remain pending. |
 
 ## Resume next
 
-1. Continue DI-005 in [the task tracker](docs/specs/tasks.md): improve the remaining specific cross-language retrieval miss, obtain a permitted real DOCX, and evaluate semantic answer support separately.
+1. Continue DI-005 in [the task tracker](docs/specs/tasks.md): compare live bilingual rewrites with the keyless baseline on a labeled corpus, obtain a permitted real DOCX, and evaluate semantic answer support separately in DI-006.
 2. Recheck real-world PDF/DOCX layouts and scanned-image rejection before claiming broad format compatibility.
 3. Update this note only after a meaningful, observed checkpoint.

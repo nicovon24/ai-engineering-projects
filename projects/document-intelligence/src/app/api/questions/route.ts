@@ -2,9 +2,10 @@ import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { generateAnswer } from "@/lib/answer";
+import { generateAnswer, generateGeneralAnswer } from "@/lib/answer";
 import { AppError } from "@/lib/errors";
-import { retrievePassages } from "@/lib/retrieval";
+import { isOverviewQuestion, retrievePassages, retrieveWithRewrites } from "@/lib/retrieval";
+import { rewriteSearches } from "@/lib/query-rewrite";
 import { addQuestion, releaseQuestion, reserveQuestion, SESSION_COOKIE } from "@/lib/storage";
 import type { QuestionRecord } from "@/lib/types";
 
@@ -38,8 +39,21 @@ export async function POST(request: NextRequest) {
     if (!token) throw new AppError("session_expired");
     const { workspace, reservationId } = await reserveQuestion(token);
     try {
-      const passages = retrievePassages(workspace, parsed.data.question);
+      const rewrites = process.env.GROQ_API_KEY && !isOverviewQuestion(parsed.data.question)
+        ? await rewriteSearches(parsed.data.question, parsed.data.locale)
+        : [];
+      const passages = rewrites.length > 0
+        ? retrieveWithRewrites(workspace, parsed.data.question, rewrites)
+        : retrievePassages(workspace, parsed.data.question);
       const answer = await generateAnswer(parsed.data.question, parsed.data.locale, passages);
+      let generalAnswer: QuestionRecord["generalAnswer"] = null;
+      if (process.env.GROQ_API_KEY && answer.status === "insufficient_evidence") {
+        try {
+          generalAnswer = await generateGeneralAnswer(parsed.data.question, parsed.data.locale);
+        } catch {
+          // A general response is optional; preserve the documentary abstention if it fails.
+        }
+      }
       const record: QuestionRecord = {
         id: randomUUID(),
         question: parsed.data.question,
@@ -48,6 +62,7 @@ export async function POST(request: NextRequest) {
         status: answer.status,
         claims: answer.claims,
         passageIds: passages.map((passage) => passage.id),
+        ...(generalAnswer ? { generalAnswer } : {}),
       };
       await addQuestion(token, reservationId, record);
       cookieStore.set(SESSION_COOKIE, token, {

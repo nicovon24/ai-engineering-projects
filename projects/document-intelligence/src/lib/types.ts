@@ -25,6 +25,11 @@ export type AnswerClaim = {
   passageIds: string[];
 };
 
+export type GeneralAnswer = {
+  kind: "general" | "cannot_verify" | "current_data";
+  text: string;
+};
+
 export type QuestionRecord = {
   id: string;
   question: string;
@@ -33,6 +38,7 @@ export type QuestionRecord = {
   status: "answered" | "insufficient_evidence" | "evidence_only";
   claims: AnswerClaim[];
   passageIds: string[];
+  generalAnswer?: GeneralAnswer | null;
 };
 
 export type WorkspaceRecord = {

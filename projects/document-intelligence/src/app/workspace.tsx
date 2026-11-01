@@ -247,6 +247,7 @@ export function Workspace({ locale, workspace, aiConfigured }: Props) {
               <div className="asked-question"><span className="question-icon" aria-hidden="true">?</span><h2>{entry.question}</h2></div>
               <div className="answer-content">
                 {entry.status === "insufficient_evidence" ? <p className="insufficient">{t.insufficient}</p> : null}
+                {entry.generalAnswer && <section className="general-answer" aria-label={t.generalAnswer}><h3>{t.generalAnswer}</h3><p>{entry.generalAnswer.text}</p><p className="help-text">{t.generalAnswerHint}</p></section>}
                 {entry.status === "answered" && <><h3>{t.answer}</h3><ol className="claim-list">{entry.claims.map((claim, index) => <li key={`${entry.id}-${index}`}><p>{claim.text}</p><div className="citation-list">{claim.passageIds.map((id) => <SourceButton key={id} id={id} label={sourceLabel(id)} onSelect={selectSource} />)}</div></li>)}</ol><p className="verification-note">{t.citationsNote}</p></>}
                 {entry.status === "evidence_only" && <><h3>{t.evidenceOnly}</h3><p className="help-text">{t.evidenceOnlyHint}</p><div className="evidence-list">{entry.passageIds.map((id) => { const item = passageMap.get(id); return item ? <div className="evidence-item" key={id}><p>{item.passage.text.slice(0, 240)}{item.passage.text.length > 240 ? "…" : ""}</p><SourceButton id={id} label={sourceLabel(id)} onSelect={selectSource} /></div> : null; })}</div></>}
               </div>

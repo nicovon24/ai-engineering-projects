@@ -317,6 +317,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 .verification-note { color: var(--muted); }
 .evidence-item { background: var(--field); border-color: var(--line); }
 .insufficient { color: var(--warning); background: var(--warning-bg); }
+.general-answer { margin-top: 14px; padding: 2px 16px 14px; border: 1px solid var(--line-strong); border-left: 3px solid var(--warning); border-radius: 8px; background: var(--field); }
+.general-answer p { margin: 0; color: var(--ink); font-size: .88rem; line-height: 1.6; }
+.general-answer .help-text { margin-top: 10px; color: var(--muted); font-size: .76rem; }
 
 .source-panel { grid-column: 3; grid-row: 2 / 4; padding: 31px 23px; border-left: 1px solid var(--line); background: var(--ground); }
 .source-panel h2 { color: var(--ink); font-size: .9rem; }
