@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
-import { FileText, Sun, Moon, PanelLeft, PanelRight } from "lucide-react";
+import { FileText, Sun, Moon, PanelLeft, PanelRight, Send, Upload, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MAX_DOCUMENTS, MAX_QUESTIONS } from "@/lib/limits";
@@ -34,9 +34,16 @@ function getServerTheme() {
 function SourceButton({
   id,
   label,
+  title,
   onSelect,
-}: { id: string; label: string; onSelect: (id: string) => void }) {
-  return <Button className="citation" variant="outline" size="sm" type="button" onClick={() => onSelect(id)}>{label}</Button>;
+}: { id: string; label: string; title?: string; onSelect: (id: string) => void }) {
+  return <Button className="citation" variant="outline" size="sm" type="button" title={title} onClick={() => onSelect(id)}>{label}</Button>;
+}
+
+function shortSourceName(name: string): string {
+  if (/(?:^|[_\s-])cv(?:[_\s.-]|$)/i.test(name)) return "CV";
+  const base = name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
+  return base.length > 24 ? `${base.slice(0, 21).trimEnd()}…` : base;
 }
 
 export function Workspace({ locale, workspace, aiConfigured }: Props) {
@@ -57,7 +64,8 @@ export function Workspace({ locale, workspace, aiConfigured }: Props) {
   const [selectedPassageId, setSelectedPassageId] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
   const theme = useSyncExternalStore(subscribeTheme, getTheme, getServerTheme);
-  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<"documents" | "sources" | null>(null);
   const historyRef = useRef<HTMLDivElement>(null);
   const documentsPanel = useRef<HTMLElement>(null);
@@ -97,10 +105,17 @@ export function Workspace({ locale, workspace, aiConfigured }: Props) {
   }
 
   function selectSource(id: string) {
+    panelReturnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setSelectedPassageId(id);
     sourcePanel.current?.scrollTo({ top: 0 });
     sourceQuote.current?.scrollTo({ top: 0 });
     if (window.matchMedia("(max-width: 1100px)").matches) openMobilePanel("sources");
+  }
+
+  function closeSource() {
+    setSelectedPassageId(null);
+    setMobilePanel(null);
+    requestAnimationFrame(() => panelReturnFocus.current?.focus());
   }
 
   const serverDocuments = workspace?.documents ?? [];
@@ -164,21 +179,16 @@ export function Workspace({ locale, workspace, aiConfigured }: Props) {
     }
   }
 
-  function handleUpload(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function uploadFile(file: File) {
     if (operation.current || documents.length >= MAX_DOCUMENTS) return;
-    if (!selectedFileName) {
-      setMessage({ tone: "error", text: t.errors.no_file });
-      return;
-    }
-    const form = event.currentTarget;
-    const data = new FormData(form);
+    const data = new FormData();
+    data.set("file", file);
+    setUploading(true);
     void runAction(() => uploadDocument(data), () => {
       uploadForm.current?.reset();
-      setSelectedFileName(null);
       setMessage({ tone: "success", text: t.uploadSuccess });
       router.refresh();
-    });
+    }).finally(() => setUploading(false));
   }
 
   function handleRemove(id: string) {
@@ -251,11 +261,11 @@ export function Workspace({ locale, workspace, aiConfigured }: Props) {
   function sourceLabel(id: string): string {
     const entry = passageMap.get(id);
     if (!entry) return t.sources;
-    return entry.passage.page ? `${entry.name} · ${t.pageShort} ${entry.passage.page}` : entry.name;
+    return entry.passage.page ? `${shortSourceName(entry.name)} · ${t.pageShort} ${entry.passage.page}` : shortSourceName(entry.name);
   }
 
   return (
-    <div className="app-shell" data-mobile-panel={mobilePanel ?? "chat"} data-has-questions={questions.length > 0 || pendingQuestion !== null}>
+    <div className="app-shell" data-mobile-panel={mobilePanel ?? "chat"} data-source-open={selected !== null} data-has-questions={questions.length > 0 || pendingQuestion !== null}>
       <a className="skip-link" href="#workspace-main">{t.skipToContent}</a>
       <header className="topbar">
         <div className="brand"><span className="brand-mark" aria-hidden="true"><FileText size={19} strokeWidth={1.7} /></span><span>{t.appName}</span></div>
@@ -272,7 +282,7 @@ export function Workspace({ locale, workspace, aiConfigured }: Props) {
       <div className="intro-band">
         <h1>{documents.length === 0 ? t.uploadFirst : t.headline}</h1>
         <p>{documents.length === 0 ? t.uploadFirstHint : t.intro}</p>
-        {documents.length === 0 && <Button variant="outline" className="intro-upload" onClick={() => openMobilePanel("documents", true)}>{t.upload}</Button>}
+        {documents.length === 0 && <Button variant="outline" className="intro-upload" onClick={() => openMobilePanel("documents", true)}>{t.addDocuments}</Button>}
       </div>
 
       <main className="workspace-grid">
@@ -282,13 +292,11 @@ export function Workspace({ locale, workspace, aiConfigured }: Props) {
           <div className="section-heading">
             <div><h2 id="documents-heading">{t.documents}</h2><p>{documents.length}/{MAX_DOCUMENTS} {t.fileCount}</p></div>
           </div>
-          <form ref={uploadForm} onSubmit={handleUpload} className="upload-form">
-            <label htmlFor="file-upload" className="field-label">{t.upload}</label>
-            <input id="file-upload" className="file-input-hidden" name="file" type="file" accept=".pdf,.txt,.md,.docx" tabIndex={-1} aria-hidden="true" onChange={(event) => setSelectedFileName(event.currentTarget.files?.[0]?.name ?? null)} disabled={busy || asking || documents.length >= MAX_DOCUMENTS} />
-            <Button id="choose-file-button" variant="outline" className="file-picker-button" type="button" aria-describedby="file-selection upload-limits" disabled={busy || asking || documents.length >= MAX_DOCUMENTS} onClick={() => document.getElementById("file-upload")?.click()}>{t.chooseFile}</Button>
-            <p id="file-selection" className="selected-file" role="status">{selectedFileName ?? t.noFileSelected}</p>
+          <form ref={uploadForm} className={`upload-form ${dragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false); }} onDrop={(event) => { event.preventDefault(); setDragging(false); const file = event.dataTransfer.files[0]; if (file) uploadFile(file); }}>
+            <input id="file-upload" className="file-input-hidden" name="file" type="file" accept=".pdf,.txt,.md,.docx" tabIndex={-1} aria-hidden="true" onChange={(event) => { const file = event.currentTarget.files?.[0]; if (file) uploadFile(file); event.currentTarget.value = ""; }} disabled={busy || asking || documents.length >= MAX_DOCUMENTS} />
+            <Button id="choose-file-button" variant="outline" className="file-picker-button" type="button" aria-describedby="upload-limits" disabled={busy || asking || documents.length >= MAX_DOCUMENTS} onClick={() => document.getElementById("file-upload")?.click()}><Upload size={17} aria-hidden="true" />{uploading ? t.loading : t.addDocuments}</Button>
             <p id="upload-limits" className="help-text">{t.uploadHint}</p>
-            <Button variant="default" className="upload-submit" type="submit" disabled={busy || asking || documents.length >= MAX_DOCUMENTS}>{busy ? t.loading : t.uploadSelected}</Button>
+            <p className="drop-hint">{t.dropHint}</p>
           </form>
 
           {documents.length === 0 ? (
@@ -304,46 +312,50 @@ export function Workspace({ locale, workspace, aiConfigured }: Props) {
           )}
 
           <div className="workspace-meta">
-            <strong>{t.workspace}</strong>
-            <p>{t.workspaceHint}</p>
-            {documents.length > 0 && <Button variant="destructive" className="delete-button" type="button" disabled={busy || asking} onClick={handleDeleteWorkspace}>{t.deleteWorkspace}</Button>}
+            <details className="workspace-menu"><summary>{t.workspace}<ChevronDown size={15} aria-hidden="true" /></summary><p>{t.workspaceHint}</p>{documents.length > 0 && <Button variant="destructive" className="delete-button" type="button" disabled={busy || asking} onClick={handleDeleteWorkspace}>{t.deleteWorkspace}</Button>}</details>
           </div>
         </aside>
 
         <section id="workspace-main" tabIndex={-1} className={`conversation-panel ${questions.length === 0 && pendingQuestion === null ? "is-empty" : ""}`} aria-label={t.questionLabel}>
-          <div className="mobile-toolbar"><Button variant="ghost" size="sm" onClick={() => openMobilePanel("documents")}><PanelLeft size={17} />{t.openDocuments}</Button><Button variant="ghost" size="sm" onClick={() => openMobilePanel("sources")}><PanelRight size={17} />{t.openSources}</Button></div>
+          <div className="mobile-toolbar"><Button variant="ghost" size="sm" onClick={() => openMobilePanel("documents")}><PanelLeft size={17} />{t.openDocuments}</Button>{selected && <Button variant="ghost" size="sm" onClick={() => openMobilePanel("sources")}><PanelRight size={17} />{t.openSources}</Button>}</div>
           <div ref={historyRef} className="history" aria-live="polite">
             {questions.length === 0 && pendingQuestion === null ? (
               <div className="empty-questions"><h2>{t.noQuestions}</h2><p>{t.noQuestionsHint}</p></div>
-            ) : questions.map((entry) => <article className="answer-block" key={entry.id}>
-              <div className="asked-question"><span className="question-icon" aria-hidden="true">?</span><h2>{entry.question}</h2></div>
-              <div className="answer-content">
-                {entry.retrievalMode === "lexical_fallback" && <p className="help-text" role="status">{t.semanticUnavailable}</p>}
-                {entry.status === "insufficient_evidence" ? <p className="insufficient">{t.insufficient}</p> : null}
-                {entry.generalAnswer && <section className="general-answer" aria-label={t.generalAnswer}><h3>{t.generalAnswer}</h3><p>{entry.generalAnswer.text}</p><p className="help-text">{t.generalAnswerHint}</p></section>}
-                {entry.status === "answered" && <><h3>{t.answer}</h3><ol className="claim-list">{entry.claims.map((claim, index) => <li key={`${entry.id}-${index}`}><p>{claim.text}</p><div className="citation-list">{claim.passageIds.map((id) => <SourceButton key={id} id={id} label={sourceLabel(id)} onSelect={selectSource} />)}</div></li>)}</ol><p className="verification-note">{t.citationsNote}</p></>}
-                {entry.status === "evidence_only" && <><h3>{t.evidenceOnly}</h3><p className="help-text">{t.evidenceOnlyHint}</p><div className="evidence-list">{entry.passageIds.map((id) => { const item = passageMap.get(id); return item ? <div className="evidence-item" key={id}><p>{item.passage.text.slice(0, 240)}{item.passage.text.length > 240 ? "…" : ""}</p><SourceButton id={id} label={sourceLabel(id)} onSelect={selectSource} /></div> : null; })}</div></>}
-              </div>
-            </article>)}
+            ) : questions.map((entry) => {
+              const sourceIds = [...new Set(entry.status === "answered" ? entry.claims.flatMap((claim) => claim.passageIds) : entry.passageIds)].filter((id) => passageMap.has(id));
+              const sourceNumbers = new Map(sourceIds.map((id, index) => [id, index + 1]));
+              const responseStatus = entry.generalAnswer ? t.externalStatus : entry.status === "answered" ? t.withSources : entry.status === "evidence_only" ? t.evidenceOnly : t.noEvidenceStatus;
+              return <article className="answer-block" key={entry.id}>
+                <div className="asked-question"><h2 lang={entry.locale}>{entry.question}</h2></div>
+                <div className="answer-content">
+                  <div className="answer-meta"><span className={`answer-status status-${entry.generalAnswer ? "external" : entry.status}`}>{responseStatus}</span>{entry.locale !== activeLocale && <span className="answer-language">{t.answerLanguage}: {entry.locale.toUpperCase()}</span>}</div>
+                  {entry.status === "insufficient_evidence" && !entry.generalAnswer && <p className="insufficient">{t.insufficient}</p>}
+                  {entry.generalAnswer && <p className="general-text" lang={entry.locale}>{entry.generalAnswer.text}</p>}
+                  {entry.status === "answered" && <ol className="claim-list">{entry.claims.map((claim, index) => <li key={`${entry.id}-${index}`}><p lang={entry.locale}>{claim.text}</p><div className="citation-list">{[...new Set(claim.passageIds)].map((id) => sourceNumbers.has(id) && <SourceButton key={id} id={id} label={`[${sourceNumbers.get(id)}]`} title={sourceLabel(id)} onSelect={selectSource} />)}</div></li>)}</ol>}
+                  {entry.status === "evidence_only" && <div className="evidence-list">{sourceIds.map((id) => { const item = passageMap.get(id)!; return <div className="evidence-item" key={id}><p>{item.passage.text.slice(0, 240)}{item.passage.text.length > 240 ? "…" : ""}</p><SourceButton id={id} label={`[${sourceNumbers.get(id)}] ${sourceLabel(id)}`} onSelect={selectSource} /></div>; })}</div>}
+                  {entry.status === "answered" && <div className="source-ref-list" aria-label={t.sources}>{sourceIds.map((id) => <SourceButton key={id} id={id} label={`[${sourceNumbers.get(id)}] ${sourceLabel(id)}`} onSelect={selectSource} />)}</div>}
+                  <details className="answer-details"><summary>{t.responseDetails}</summary><p>{entry.generalAnswer ? t.generalAnswerHint : entry.status === "answered" ? t.citationsNote : entry.status === "evidence_only" ? t.evidenceOnlyHint : t.insufficient}</p>{entry.retrievalMode === "lexical_fallback" && <p>{t.semanticUnavailable}</p>}{entry.generalAnswer && <p>{t.insufficient}</p>}</details>
+                </div>
+              </article>;
+            })}
             {pendingQuestion && <article className="answer-block answer-pending" aria-busy="true"><div className="asked-question"><span className="question-icon" aria-hidden="true">?</span><h2>{pendingQuestion}</h2></div><div className="answer-content" role="status">{t.questionPending}</div></article>}
           </div>
-          <div className="status-strip" role="note"><span className="status-dot" aria-hidden="true" /><div><strong>{aiConfigured ? t.aiMode : t.evidenceMode}</strong><p>{aiConfigured ? t.aiModeHint : t.evidenceModeHint}</p></div></div>
+          <details className="status-strip"><summary>{aiConfigured ? t.aiMode : t.evidenceMode}</summary><p>{aiConfigured ? t.aiModeHint : t.evidenceModeHint}</p></details>
           {message && <div className={`feedback feedback-${message.tone}`} role={message.tone === "error" ? "alert" : "status"}>{message.text}</div>}
           <div className="question-area">
             <div className="question-topline"><span>{t.questionLabel}</span><span>{MAX_QUESTIONS - questions.length} {t.questionsLeft}</span></div>
             <form onSubmit={handleQuestion}>
               <label className="sr-only" htmlFor="question-input">{t.questionLabel}</label>
-              <Textarea id="question-input" name="question" autoComplete="off" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder={t.questionPlaceholder} maxLength={1000} rows={3} disabled={busy || asking || documents.length === 0 || questions.length >= MAX_QUESTIONS} required />
-              <div className="question-actions"><p>{documents.length === 0 ? t.errors.no_documents : t.askHint}</p><Button variant="default" type="submit" disabled={busy || asking || documents.length === 0 || questions.length >= MAX_QUESTIONS || question.trim().length < 3}>{asking ? t.loading : aiConfigured ? t.ask : t.search}</Button></div>
+              <Textarea id="question-input" name="question" autoComplete="off" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder={t.questionPlaceholder} maxLength={1000} rows={2} disabled={busy || asking || documents.length === 0 || questions.length >= MAX_QUESTIONS} required />
+              <div className="question-actions"><Button variant="default" type="submit" aria-label={asking ? t.loading : aiConfigured ? t.ask : t.search} disabled={busy || asking || documents.length === 0 || questions.length >= MAX_QUESTIONS || question.trim().length < 3}><Send size={18} aria-hidden="true" /></Button></div>
             </form>
           </div>
         </section>
 
-        <aside ref={sourcePanel} tabIndex={-1} className={`source-panel ${mobilePanel === "sources" ? "mobile-open" : ""}`} aria-labelledby="source-heading">
-          <div className="mobile-panel-head"><Button variant="ghost" size="sm" onClick={closeMobilePanel}>{t.closePanel}</Button></div>
-          <h2 id="source-heading">{t.sourcePanel}</h2>
-          {selected ? <div className="source-detail"><div className="source-file"><span className="file-type small" aria-hidden="true">{documents.find((item) => item.id === selected.passage.documentId)?.extension.toUpperCase()}</span><strong>{selected.name}</strong></div><p className="source-location">{selected.passage.page ? `${t.page} ${selected.passage.page}` : t.location} · {selected.passage.startOffset}–{selected.passage.endOffset}</p><blockquote ref={sourceQuote} key={selectedPassageId}>{selected.passage.text}</blockquote><a href={`/api/documents/${selected.passage.documentId}`} className="download-link">{t.download}</a></div> : <div className="source-placeholder"><div className="source-lines" aria-hidden="true"><span /><span /><span /><span /></div><p>{t.sourceEmpty}</p></div>}
-        </aside>
+        {selected && <aside ref={sourcePanel} tabIndex={-1} className={`source-panel ${mobilePanel === "sources" ? "mobile-open" : ""}`} aria-labelledby="source-heading">
+          <div className="source-panel-header"><h2 id="source-heading">{t.sourcePanel}</h2><Button variant="ghost" size="icon" type="button" aria-label={t.closePanel} onClick={closeSource}><X size={18} aria-hidden="true" /></Button></div>
+          <div className="source-detail"><div className="source-file"><span className="file-type small" aria-hidden="true">{documents.find((item) => item.id === selected.passage.documentId)?.extension.toUpperCase()}</span><strong>{selected.name}</strong></div><p className="source-location">{selected.passage.page ? `${t.page} ${selected.passage.page}` : t.location} · {selected.passage.startOffset}–{selected.passage.endOffset}</p><blockquote ref={sourceQuote} key={selectedPassageId}>{selected.passage.text}</blockquote><a href={`/api/documents/${selected.passage.documentId}`} className="download-link">{t.download}</a></div>
+        </aside>}
       </main>
     </div>
   );

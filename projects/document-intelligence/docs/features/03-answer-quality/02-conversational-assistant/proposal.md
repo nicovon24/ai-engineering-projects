@@ -2,7 +2,7 @@
 
 Status: Proposed; no application behavior in this document is newly implemented.
 
-The [proposed improvements diagram](../../../../system-design/improvements.svg) is a visual summary of the answer path and delivery order below. The four other system diagrams describe current behavior.
+The three [system diagrams](../../../../system-design/README.md) describe current behavior. The answer path and delivery order below are proposals.
 
 ## Objective
 

@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="1920" height="1080" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Arial, sans-serif" aria-labelledby="hybrid-retrieval-title hybrid-retrieval-desc" id="hybrid-retrieval-root">
-    <title id="hybrid-retrieval-title">Hybrid retrieval</title>
-    <desc id="hybrid-retrieval-desc">A question ranks local passages by words and multilingual embeddings, fuses the two lists, and selects up to five source passages; lexical fallback handles embedding failure.</desc>
+<svg width="1920" height="1080" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Arial, sans-serif" aria-labelledby="search-title search-desc" id="search-root">
+    <title id="search-title">Hybrid retrieval</title>
+    <desc id="search-desc">A question ranks local passages by words and multilingual embeddings, fuses the two lists, and selects up to five source passages; lexical fallback handles embedding failure.</desc>
     <defs>
-      <style>#hybrid-retrieval-root { color: #2d3142; font-family: Geist, system-ui, sans-serif; }
-      #hybrid-retrieval-root .diagram-container { width: 100%; overflow-x: auto; }
-      #hybrid-retrieval-root .node { fill: #2d3142; font: 600 18px Geist, system-ui, sans-serif; }
-      #hybrid-retrieval-root .diagram-title { fill: #2d3142; font: 400 40px 'Instrument Serif', Georgia, serif; }
-      #hybrid-retrieval-root .sub { fill: #5a6580; font: 400 13px 'Geist Mono', monospace; }
-      #hybrid-retrieval-root .tag, #hybrid-retrieval-root .eyebrow, #hybrid-retrieval-root .row-label { fill: #4f5d75; font: 500 11px 'Geist Mono', monospace; letter-spacing: .10em; }
-      #hybrid-retrieval-root .stage { fill: #2d3142; font: 600 18px Geist, system-ui, sans-serif; }
-      #hybrid-retrieval-root .arrow-label { fill: #4f5d75; font: 400 11px 'Geist Mono', monospace; letter-spacing: .06em; }
-      #hybrid-retrieval-root .note { fill: #4f5d75; font: 400 15px Geist, system-ui, sans-serif; }
-      #hybrid-retrieval-root .diagram-footer { fill: #4f5d75; font: 400 12px 'Geist Mono', monospace; }
+      <style>#search-root { color: #2d3142; font-family: Geist, system-ui, sans-serif; }
+      #search-root .diagram-container { width: 100%; overflow-x: auto; }
+      #search-root .node { fill: #2d3142; font: 600 18px Geist, system-ui, sans-serif; }
+      #search-root .diagram-title { fill: #2d3142; font: 400 40px 'Instrument Serif', Georgia, serif; }
+      #search-root .sub { fill: #5a6580; font: 400 13px 'Geist Mono', monospace; }
+      #search-root .tag, #search-root .eyebrow, #search-root .row-label { fill: #4f5d75; font: 500 11px 'Geist Mono', monospace; letter-spacing: .10em; }
+      #search-root .stage { fill: #2d3142; font: 600 18px Geist, system-ui, sans-serif; }
+      #search-root .arrow-label { fill: #4f5d75; font: 400 11px 'Geist Mono', monospace; letter-spacing: .06em; }
+      #search-root .note { fill: #4f5d75; font: 400 15px Geist, system-ui, sans-serif; }
+      #search-root .diagram-footer { fill: #4f5d75; font: 400 12px 'Geist Mono', monospace; }
       @media print {
-#hybrid-retrieval-root .diagram-container { overflow-x: visible; }
+#search-root .diagram-container { overflow-x: visible; }
 }</style>
-      <marker id="hybrid-retrieval-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#4f5d75"/></marker>
-      <marker id="hybrid-retrieval-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#bf4520"/></marker>
-      <marker id="hybrid-retrieval-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#2e5aa8"/></marker>
+      <marker id="search-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#4f5d75"/></marker>
+      <marker id="search-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#bf4520"/></marker>
+      <marker id="search-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#2e5aa8"/></marker>
     </defs>
     <rect width="1280" height="720" fill="#f5f5f5"/>
     <text x="48" y="48" class="eyebrow" font-size="11" text-anchor="start">DOCUMENT INTELLIGENCE  /  CURRENT LOCAL PROTOTYPE</text>
@@ -27,11 +27,11 @@
 <rect x="48" y="176" width="1184" height="300" rx="8" fill="#f5f5f5" stroke="#bfc0c0" />
 <rect x="72" y="168" width="152" height="18" rx="2" fill="#f5f5f5" stroke="none" />
 <text x="80" y="182" class="eyebrow" font-size="11" text-anchor="start">QUESTION PATH</text>
-<path d="M 240 312 H 280 Q 288 312 288 304 V 274 Q 288 266 296 266 H 336" fill="none" stroke="#4f5d75" stroke-width="2.2" marker-end="url(#hybrid-retrieval-arrow)" />
-<path d="M 240 344 H 280 Q 288 344 288 352 V 396 Q 288 404 296 404 H 336" fill="none" stroke="#bf4520" stroke-width="2.2" marker-end="url(#hybrid-retrieval-arrow-accent)" />
-<path d="M 536 266 H 596 Q 604 266 604 274 V 296 Q 604 304 612 304 H 656" fill="none" stroke="#4f5d75" stroke-width="2.2" marker-end="url(#hybrid-retrieval-arrow)" />
-<path d="M 536 404 H 596 Q 604 404 604 396 V 352 Q 604 344 612 344 H 656" fill="none" stroke="#bf4520" stroke-width="2.2" marker-end="url(#hybrid-retrieval-arrow-accent)" />
-<path d="M 856 328 H 976" fill="none" stroke="#bf4520" stroke-width="2.2" marker-end="url(#hybrid-retrieval-arrow-accent)" />
+<path d="M 240 312 H 280 Q 288 312 288 304 V 274 Q 288 266 296 266 H 336" fill="none" stroke="#4f5d75" stroke-width="2.2" marker-end="url(#search-arrow)" />
+<path d="M 240 344 H 280 Q 288 344 288 352 V 396 Q 288 404 296 404 H 336" fill="none" stroke="#bf4520" stroke-width="2.2" marker-end="url(#search-arrow-accent)" />
+<path d="M 536 266 H 596 Q 604 266 604 274 V 296 Q 604 304 612 304 H 656" fill="none" stroke="#4f5d75" stroke-width="2.2" marker-end="url(#search-arrow)" />
+<path d="M 536 404 H 596 Q 604 404 604 396 V 352 Q 604 344 612 344 H 656" fill="none" stroke="#bf4520" stroke-width="2.2" marker-end="url(#search-arrow-accent)" />
+<path d="M 856 328 H 976" fill="none" stroke="#bf4520" stroke-width="2.2" marker-end="url(#search-arrow-accent)" />
 <rect x="64" y="280" width="176" height="96" rx="6" fill="#f5f5f5" stroke="none" />
 <rect x="64" y="280" width="176" height="96" rx="6" fill="#ffffff" stroke="#bfc0c0" />
 <rect x="76" y="288" width="68" height="18" rx="2" fill="#f5f5f5" stroke="#bfc0c0" />
@@ -65,8 +65,8 @@
 <rect x="48" y="496" width="1184" height="140" rx="8" fill="#f5f5f5" stroke="#bfc0c0" />
 <rect x="72" y="488" width="140" height="18" rx="2" fill="#f5f5f5" stroke="none" />
 <text x="80" y="502" class="eyebrow" font-size="11" text-anchor="start">LOCAL DATA</text>
-<path d="M 284 568 H 336" fill="none" stroke="#4f5d75" stroke-width="2.2" marker-end="url(#hybrid-retrieval-arrow)" />
-<path d="M 436 520 V 452" fill="none" stroke="#bf4520" stroke-width="2.2" marker-end="url(#hybrid-retrieval-arrow-accent)" />
+<path d="M 284 568 H 336" fill="none" stroke="#4f5d75" stroke-width="2.2" marker-end="url(#search-arrow)" />
+<path d="M 436 520 V 452" fill="none" stroke="#bf4520" stroke-width="2.2" marker-end="url(#search-arrow-accent)" />
 <rect x="64" y="520" width="220" height="96" rx="6" fill="#f5f5f5" stroke="none" />
 <rect x="64" y="520" width="220" height="96" rx="6" fill="#ffffff" stroke="#bfc0c0" />
 <rect x="76" y="528" width="68" height="18" rx="2" fill="#f5f5f5" stroke="#bfc0c0" />
@@ -77,7 +77,7 @@
 <rect x="336" y="520" width="200" height="96" rx="6" fill="#ffffff" stroke="#bfc0c0" />
 <rect x="348" y="528" width="68" height="18" rx="2" fill="#f5f5f5" stroke="#bfc0c0" />
 <text x="382" y="541" class="tag" font-size="11" text-anchor="middle">INDEX</text>
-<text x="352" y="574" class="node" font-size="18" text-anchor="start">Versioned vectors</text>
+<text x="352" y="574" class="node" font-size="18" text-anchor="start">Optional vectors</text>
 <text x="352" y="598" class="sub" font-size="13" text-anchor="start">pinned local model</text>
 <text x="656" y="548" class="eyebrow" font-size="11" text-anchor="start">EMBEDDING FAILURE</text>
 <text x="656" y="580" class="note" font-size="15" text-anchor="start">Use lexical matches and label the fallback.</text>

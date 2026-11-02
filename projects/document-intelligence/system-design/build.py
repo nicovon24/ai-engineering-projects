@@ -1,11 +1,12 @@
 """Build the current Document Intelligence service diagrams as SVG files."""
 
 import argparse
+import shutil
 import subprocess
 import sys
 from html import escape
 from pathlib import Path
-from tempfile import TemporaryDirectory
+from uuid import uuid4
 
 
 OUTPUT = Path(__file__).parent
@@ -68,40 +69,43 @@ def label(x, y, width, value):
     ])
 
 
-def blueprint():
-    stages = [
-        ("UPLOAD", "Upload a file", "File listed", "Parse + index", "files; passages; vectors"),
-        ("ASK", "Ask in ES / EN", "Mode + quota", "Reserve + retrieve", "lexical + semantic"),
-        ("REVIEW", "Read result", "Result shown", "Generate + check", "cited IDs validated"),
-        ("INSPECT", "Open a source", "Source panel", "Authorize source", "exact passage + file"),
-        ("DELETE", "Delete workspace", "Workspace cleared", "Delete local data", "files + JSON + vectors"),
-    ]
+def overview():
+    """Current browser, server, and workspace paths in one architecture view."""
     out = [
-        text(96, 84, "CURRENT LOCAL PROTOTYPE", "eyebrow"),
-        text(88, 222, "VISITOR", "row-label", "end"),
-        text(88, 334, "VISIBLE UI", "row-label", "end"),
-        text(88, 446, "SERVER", "row-label", "end"),
-        '<line x1="96" y1="268" x2="1200" y2="268" stroke="#bfc0c0" data-role="interaction"/>',
-        '<line x1="96" y1="376" x2="1200" y2="376" stroke="rgba(45,49,66,0.55)" stroke-width="2" data-role="visibility"/>',
+        text(48, 48, "DOCUMENT INTELLIGENCE  /  CURRENT LOCAL PROTOTYPE", "eyebrow"),
+        text(48, 98, "How the system works", "diagram-title"),
+        text(48, 128, "One temporary workspace connects uploaded sources, questions, and inspectable results.", "note"),
+        rect(48, 176, 262, 374, PAPER, RULE, 8),
+        rect(352, 176, 574, 374, PAPER, RULE, 8),
+        rect(968, 176, 264, 374, PAPER, RULE, 8),
+        rect(64, 168, 122, 18, PAPER, "none", 2),
+        rect(368, 168, 162, 18, PAPER, "none", 2),
+        rect(984, 168, 152, 18, PAPER, "none", 2),
+        text(72, 182, "VISITOR + UI", "eyebrow"),
+        text(376, 182, "NEXT.JS SERVER", "eyebrow"),
+        text(992, 182, "LOCAL WORKSPACE", "eyebrow"),
+        arrow("M 286 282 H 386"),
+        arrow("M 600 282 H 686", accent=True),
+        arrow("M 900 282 H 990", accent=True),
+        arrow("M 286 422 H 386"),
+        arrow("M 600 422 H 686", accent=True),
+        cell(68, 242, "Upload files", "PDF, DOCX, TXT, MD"),
+        cell(68, 382, "Ask in ES / EN", "question + locale"),
+        cell(386, 242, "Extract text", "validate + chunk"),
+        cell(686, 242, "Save sources", "files + passage IDs", True),
+        cell(386, 382, "Find passages", "words + local vectors"),
+        cell(686, 382, "Build result", "Groq + ID checks"),
+        cell(990, 242, "Files + passages", "optional vector index"),
+        cell(990, 382, "Question history", "saved questions"),
+        text(68, 510, "Inspect sources; delete.", "note"),
+        text(374, 510, "Only the server reads files or calls Groq.", "note"),
+        '<line x1="48" y1="584" x2="1232" y2="584" stroke="#bfc0c0"/>',
+        text(48, 614, "RESULT IN THE UI", "eyebrow"),
+        text(244, 614, "Cited answer + sources, evidence-only passages (no key), or insufficient evidence.", "note"),
+        text(48, 644, "Groq may add separate uncited general text after abstention; invalid responses show an error.", "diagram-footer"),
+        '<line x1="48" y1="668" x2="1232" y2="668" stroke="#bfc0c0"/>',
+        text(48, 696, "Manual deletion removes local files, passages, vectors, and questions; expiry is enforced on access.", "diagram-footer"),
     ]
-    for i, (stage, customer, front, back, sub) in enumerate(stages):
-        x = 96 + i * 224
-        stage_id = stage.lower()
-        out.extend([
-            rect(x, 104, 208, 48, PAPER, RULE, 2, f'data-stage="{stage_id}"'),
-            text(x + 104, 134, f"0{i + 1}  {stage}", "stage", "middle"),
-            f'<g data-layer="customer">{cell(x, 176, customer, data=f"data-stage={chr(34)}{stage_id}{chr(34)} data-name={chr(34)}{escape(customer)}{chr(34)}")}</g>',
-            f'<g data-layer="frontstage">{cell(x, 288, front, data=f"data-stage={chr(34)}{stage_id}{chr(34)} data-name={chr(34)}{escape(front)}{chr(34)}")}</g>',
-            f'<g data-layer="backstage">{cell(x, 400, back, sub, i == 2, data=f"data-stage={chr(34)}{stage_id}{chr(34)} data-name={chr(34)}{escape(back)}{chr(34)}" + (" data-focal=\"true\"" if i == 2 else ""))}</g>',
-        ])
-    out.extend([
-        '<line x1="96" y1="528" x2="1200" y2="528" stroke="#bfc0c0"/>',
-        text(96, 558, "Above the line: what the visitor sees. Below: server work for the same action.", "note"),
-        text(96, 586, "No key: evidence only. No supporting passage: insufficient evidence. Deletion removes the local workspace.", "note"),
-        '<line x1="40" y1="644" x2="1240" y2="644" stroke="#bfc0c0"/>',
-        text(40, 668, "SERVICE BLUEPRINT", "eyebrow"),
-        text(252, 668, "Five visible actions; five corresponding server operations.", "diagram-footer"),
-    ])
     return "\n".join(out)
 
 
@@ -121,59 +125,17 @@ def evidence_flow():
         label(942, 208, 96, "SOURCE ID"),
         step(80, 180, 200, "FILE", "Uploaded file", "PDF / DOCX / TXT / MD"),
         step(340, 180, 200, "PARSE", "Parse file", "validate; extract text"),
-        step(600, 180, 240, "SOURCE", "Passages + index", "IDs; offsets; vectors", True),
+        step(600, 180, 240, "SOURCE", "Passages + optional index", "IDs; offsets; optional vectors", True),
         step(80, 408, 200, "INPUT", "Ask in ES / EN", "question + locale"),
-        step(340, 408, 200, "SEARCH", "Select evidence", "hybrid / overview"),
+        step(340, 408, 200, "SEARCH", "Select evidence", "hybrid / lexical fallback"),
         step(600, 408, 240, "RESULT", "Documentary result", "answer / evidence / abstain"),
         step(960, 408, 220, "UI", "Inspect source", "passage + original file"),
         '<line x1="80" y1="540" x2="1200" y2="540" stroke="#bfc0c0"/>',
-        text(80, 574, "Optional Groq rewrite sees the question and locale; generation sees up to five selected passages.", "note"),
+        text(80, 574, "Overview questions sample passages; optional Groq rewrite sees only question and locale.", "note"),
         text(80, 602, "A passage ID links a claim to an existing source; semantic support still needs evaluation.", "note"),
         '<line x1="40" y1="644" x2="1240" y2="644" stroke="#bfc0c0"/>',
         text(40, 668, "DATA LINEAGE", "eyebrow"),
         text(252, 668, "Dashed paths are used when a source is available for inspection.", "diagram-footer"),
-    ]
-    return "\n".join(out)
-
-
-def ai_architecture():
-    out = [
-        text(48, 48, "DOCUMENT INTELLIGENCE  /  CURRENT LOCAL PROTOTYPE", "eyebrow"),
-        text(48, 98, "AI + RAG architecture", "diagram-title"),
-        text(48, 128, "What runs today, and where tools and MCP would fit", "note"),
-        rect(48, 176, 1184, 360, PAPER, RULE, 8),
-        rect(72, 168, 128, 18, PAPER, "none", 2),
-        text(80, 182, "CURRENT APP", "eyebrow"),
-        arrow("M 252 268 H 300"),
-        arrow("M 500 268 H 548", accent=True),
-        arrow("M 748 268 H 796", accent=True),
-        arrow("M 996 268 H 1044"),
-        arrow("M 420 316 V 336 Q 420 344 428 344 H 592 Q 600 344 600 352 V 372"),
-        arrow("M 700 372 V 316", accent=True),
-        arrow("M 720 316 V 336 Q 720 344 728 344 H 1128 Q 1136 344 1136 336 V 316", dashed=True),
-        text(900, 336, "NO-KEY PATH", "arrow-label", "middle"),
-        step(72, 220, 180, "INPUT", "Web UI", "upload; ask ES/EN"),
-        step(300, 220, 200, "CONTROL", "App server", "parse; quota; validate"),
-        step(548, 220, 200, "RAG", "Hybrid search", "lexical + semantic", True),
-        step(796, 220, 200, "MODEL", "Groq LLM", "context to JSON claims"),
-        step(1044, 220, 180, "OUTPUT", "Result in UI", "server-checked IDs"),
-        step(548, 372, 200, "DATA", "Local workspace", "files; passages; vectors"),
-        text(80, 494, "RAG selects file passages; Groq sees up to five. Rewrite sees only question + locale.", "note"),
-        text(80, 518, "Groq returns to the server for citation-ID checks. No key: evidence only. No support: abstain.", "note"),
-        rect(48, 560, 1184, 112, PAPER, RULE, 8, 'stroke-dasharray="5,4"'),
-        rect(72, 552, 232, 18, PAPER, "none", 2),
-        text(80, 566, "CONCEPTUAL  /  NOT WIRED", "eyebrow"),
-        arrow("M 560 608 H 720", dashed=True),
-        arrow("M 720 632 H 560", dashed=True),
-        text(640, 598, "MCP TOOL CALL", "arrow-label", "middle"),
-        text(640, 654, "TOOL RESULT", "arrow-label", "middle"),
-        rect(80, 584, 480, 64),
-        text(96, 612, "AI app / MCP client"),
-        text(96, 636, "model chooses; app calls the tool", "sub"),
-        rect(720, 584, 480, 64),
-        text(736, 612, "MCP server + tools"),
-        text(736, 636, "exposes operations and resources", "sub"),
-        text(48, 700, "Today, server code orchestrates retrieval. The model does not invoke tools; there is no MCP connection.", "diagram-footer"),
     ]
     return "\n".join(out)
 
@@ -202,7 +164,7 @@ def hybrid_retrieval():
         arrow("M 284 568 H 336"),
         arrow("M 436 520 V 452", accent=True),
         step(64, 520, 220, "SOURCE", "Stored passages", "IDs + text offsets"),
-        step(336, 520, 200, "INDEX", "Versioned vectors", "pinned local model"),
+        step(336, 520, 200, "INDEX", "Optional vectors", "pinned local model"),
         text(656, 548, "EMBEDDING FAILURE", "eyebrow"),
         text(656, 580, "Use lexical matches and label the fallback.", "note"),
         text(656, 608, "The embedding model runs on this server.", "note"),
@@ -212,40 +174,46 @@ def hybrid_retrieval():
     return "\n".join(out)
 
 
-def improvements():
+def answer_modes():
+    """Show the saved documentary status and the separate optional general text."""
+    def diamond(cx, cy, title, subtitle):
+        return "\n".join([
+            f'<path d="M {cx} {cy - 54} L {cx + 84} {cy} L {cx} {cy + 54} L {cx - 84} {cy} Z" fill="#ffffff" stroke="{RULE}" stroke-width="2"/>',
+            text(cx, cy - 4, title, "node", "middle"),
+            text(cx, cy + 18, subtitle, "sub", "middle"),
+        ])
+
     out = [
-        text(48, 48, "DOCUMENT INTELLIGENCE  /  PROPOSAL · NOT IMPLEMENTED", "eyebrow"),
-        text(48, 98, "A more capable chat", "diagram-title"),
-        text(48, 128, "Resolve follow-ups, choose sources, and verify each answer against its evidence", "note"),
-        rect(48, 176, 1184, 274, PAPER, RULE, 8),
-        rect(72, 168, 186, 18, PAPER, "none", 2),
-        text(80, 182, "PROPOSED ANSWER PATH", "eyebrow"),
-        arrow("M 272 268 H 304"),
-        arrow("M 512 268 H 544", accent=True),
-        arrow("M 752 268 H 784"),
-        arrow("M 992 268 H 1024"),
-        step(64, 220, 208, "ASK", "User question", "ES / EN; follow-up"),
-        step(304, 220, 208, "CONTEXT", "Resolve context", "standalone question", True),
-        step(544, 220, 208, "ROUTE", "Choose sources", "files / general / web"),
-        step(784, 220, 208, "CHECK", "Verify claims", "support per statement"),
-        step(1024, 220, 200, "ANSWER", "Show response", "clear source labels"),
-        text(80, 352, "SOURCE LANES", "eyebrow"),
-        rect(80, 370, 344, 52),
-        text(96, 400, "Files · cited passages", "note"),
-        rect(468, 370, 344, 52),
-        text(484, 400, "General · labeled explanation", "note"),
-        rect(856, 370, 344, 52),
-        text(872, 400, "Web · linked current sources", "note"),
-        rect(48, 488, 1184, 168, PAPER, RULE, 8),
-        rect(72, 480, 174, 18, PAPER, "none", 2),
-        text(80, 494, "DELIVERY ORDER", "eyebrow"),
-        step(64, 524, 216, "A", "Evaluate cases", "ES/EN; false claims"),
-        step(300, 524, 216, "B", "Resolve follow-ups", "context; no-file chat"),
-        step(536, 524, 216, "C", "Check support", "evidence per claim"),
-        step(772, 524, 216, "D", "Tune retrieval", "BM25; rerank trials"),
-        step(1008, 524, 216, "E", "Add web sources", "links; freshness"),
-        '<line x1="48" y1="676" x2="1232" y2="676" stroke="#bfc0c0"/>',
-        text(48, 700, "Future work only. Adopt retrieval methods after measured gains; local changes need no new database.", "diagram-footer"),
+        text(48, 48, "DOCUMENT INTELLIGENCE  /  CURRENT LOCAL PROTOTYPE", "eyebrow"),
+        text(48, 98, "What the answer can show", "diagram-title"),
+        text(48, 128, "The documentary result is decided before any separate general text.", "note"),
+        arrow("M 248 252 H 298"),
+        arrow("M 466 252 H 558", accent=True),
+        arrow("M 726 252 H 818", accent=True),
+        arrow("M 986 252 H 1050", accent=True),
+        arrow("M 382 306 V 424"),
+        arrow("M 642 306 V 424"),
+        arrow("M 902 306 V 424"),
+        label(476, 226, 72, "YES"),
+        label(736, 226, 72, "YES"),
+        label(990, 226, 52, "YES"),
+        label(398, 354, 48, "NO"),
+        label(658, 354, 48, "NO"),
+        label(918, 354, 48, "NO"),
+        step(48, 204, 200, "INPUT", "Question", "retrieve up to 5 passages"),
+        diamond(382, 252, "Passages?", "selected locally"),
+        diamond(642, 252, "Groq key?", "configured"),
+        diamond(902, 252, "Answered?", "model status"),
+        step(1050, 204, 182, "ANSWER", "Cited claims", "validated IDs", True),
+        step(266, 424, 232, "LIMIT", "Insufficient evidence", "no passages selected"),
+        step(526, 424, 232, "LOCAL", "Evidence only", "passages; no AI answer"),
+        step(786, 424, 232, "LIMIT", "Insufficient evidence", "model abstains"),
+        rect(48, 556, 1184, 92, TINT, RULE, 6),
+        text(68, 584, "SEPARATE GENERAL TEXT", "eyebrow"),
+        text(68, 610, "With a key and insufficient evidence: a narrow concept explanation or fixed verification limit may appear.", "note"),
+        text(68, 632, "It has no document citations. If this optional step fails, the documentary limit remains.", "diagram-footer"),
+        '<line x1="48" y1="668" x2="1232" y2="668" stroke="#bfc0c0"/>',
+        text(48, 696, "A valid passage ID proves existence, not semantic support; provider or validation errors show an error instead.", "diagram-footer"),
     ]
     return "\n".join(out)
 
@@ -301,21 +269,23 @@ def main():
         parser.error(f"diagram-design SVG exporter not found: {args.exporter}")
     checker = args.exporter.with_name("self_check.py")
     pages = [
-        ("how-it-works", "How the document workspace works", "Five visitor actions align with the visible interface and the server work behind it.", blueprint()),
-        ("workflow", "From uploaded file to inspectable source", "Files become passages; questions select passages for a documentary result whose source can be inspected.", evidence_flow()),
-        ("ai", "AI + RAG architecture", "The current app retrieves local passages for optional Groq answers; tools and MCP are shown separately as an unimplemented concept.", ai_architecture()),
-        ("hybrid-retrieval", "Hybrid retrieval", "A question ranks local passages by words and multilingual embeddings, fuses the two lists, and selects up to five source passages; lexical fallback handles embedding failure.", hybrid_retrieval()),
-        ("improvements", "Proposed assistant improvements", "Proposed stages resolve conversational questions, route to document, general, or optional web sources, verify claim support, and deliver a source-labeled answer. The sequence is future work, not current behavior.", improvements()),
+        ("overview", "How the system works", "Browser actions reach the Next.js server, which extracts and saves sources, retrieves passages, optionally calls Groq, and returns inspectable results from a temporary local workspace.", overview()),
+        ("sources", "From uploaded file to inspectable source", "Files become passages; questions select passages for a documentary result whose source can be inspected.", evidence_flow()),
+        ("search", "Hybrid retrieval", "A question ranks local passages by words and multilingual embeddings, fuses the two lists, and selects up to five source passages; lexical fallback handles embedding failure.", hybrid_retrieval()),
+        ("answers", "Document answer modes", "The question route distinguishes cited documentary claims, local evidence-only passages, and insufficient evidence. With Groq configured, an abstention may also show separately labeled general text or a fixed verification limit without document citations.", answer_modes()),
     ]
-    with TemporaryDirectory(prefix=".diagram-build-", dir=OUTPUT) as temporary:
-        source_dir = Path(temporary)
-        if not source_dir.resolve().is_relative_to(OUTPUT.resolve()):
-            raise RuntimeError("Temporary diagram files must stay inside system-design")
+    source_dir = OUTPUT / f".diagram-build-{uuid4().hex}"
+    source_dir.mkdir()
+    try:
         for slug, title, description, drawing in pages:
             source = source_dir / f"{slug}.html"
             source.write_text(html_page(slug, title, description, drawing), encoding="utf-8")
             subprocess.run([sys.executable, str(checker), str(source)], check=True)
             subprocess.run([sys.executable, str(args.exporter), str(source), str(OUTPUT / f"{slug}.svg"), "--system-fonts"], check=True)
+    finally:
+        if not source_dir.resolve().is_relative_to(OUTPUT.resolve()):
+            raise RuntimeError("Temporary diagram files must stay inside system-design")
+        shutil.rmtree(source_dir)
 
 
 if __name__ == "__main__":

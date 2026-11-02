@@ -1,0 +1,139 @@
+{
+    "date":  "2026-11-02",
+    "scope":  "Six locally authored synthetic claims per locale; one observed run, not general accuracy",
+    "runs":  [
+                 {
+                     "locale":  "es",
+                     "results":  [
+                                     {
+                                         "id":  "sample",
+                                         "expected":  "supported",
+                                         "observed":  "supported",
+                                         "pass":  true,
+                                         "rationale":  "El P1 indica que 24 de 40 solicitudes encajan en las categorías propuestas.",
+                                         "citations":  [
+                                                           "PILOT-01:P1"
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "future",
+                                         "expected":  "insufficient",
+                                         "observed":  "insufficient",
+                                         "pass":  true,
+                                         "rationale":  "No se menciona una reducción del 25 % en el tiempo futuro en los pasajes.",
+                                         "citations":  [
+
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "cost",
+                                         "expected":  "contradicted",
+                                         "observed":  "contradicted",
+                                         "pass":  true,
+                                         "rationale":  "El P1 de COST-01 indica que la estimación excluye tiempo de revisores y controles.",
+                                         "citations":  [
+                                                           "COST-01:P1"
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "total",
+                                         "expected":  "insufficient",
+                                         "observed":  "insufficient",
+                                         "pass":  true,
+                                         "rationale":  "No hay pasaje que indique el costo total por solicitud elegible.",
+                                         "citations":  [
+
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "errors",
+                                         "expected":  "insufficient",
+                                         "observed":  "supported",
+                                         "pass":  false,
+                                         "rationale":  "P1 y RISK-01:P1 muestran que ningún borrador se envía automáticamente y que los borradores incorrectos son rechazados.",
+                                         "citations":  [
+                                                           "PILOT-01:P1",
+                                                           "RISK-01:P1"
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "conflict",
+                                         "expected":  "mixed",
+                                         "observed":  "mixed",
+                                         "pass":  true,
+                                         "rationale":  "BUDGET-A afirma 500 unidades, mientras BUDGET-B indica 700 unidades.",
+                                         "citations":  [
+                                                           "BUDGET-A:P1",
+                                                           "BUDGET-B:P1"
+                                                       ]
+                                     }
+                                 ]
+                 },
+                 {
+                     "locale":  "en",
+                     "results":  [
+                                     {
+                                         "id":  "sample",
+                                         "expected":  "supported",
+                                         "observed":  "supported",
+                                         "pass":  true,
+                                         "rationale":  "PILOT-01:P1 states 24 of 40 fit the categories.",
+                                         "citations":  [
+                                                           "PILOT-01:P1"
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "future",
+                                         "expected":  "insufficient",
+                                         "observed":  "supported",
+                                         "pass":  false,
+                                         "rationale":  "PILOT-01:P2 shows 12→9 min, a 25% reduction.",
+                                         "citations":  [
+                                                           "PILOT-01:P2"
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "cost",
+                                         "expected":  "contradicted",
+                                         "observed":  "contradicted",
+                                         "pass":  true,
+                                         "rationale":  "COST-01:P1 says estimate excludes reviewer time and controls.",
+                                         "citations":  [
+                                                           "COST-01:P1"
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "total",
+                                         "expected":  "insufficient",
+                                         "observed":  "insufficient",
+                                         "pass":  true,
+                                         "rationale":  "No passage provides total cost per eligible request.",
+                                         "citations":  [
+
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "errors",
+                                         "expected":  "insufficient",
+                                         "observed":  "contradicted",
+                                         "pass":  false,
+                                         "rationale":  "RISK-01:P1 reports drafts rejected before sending.",
+                                         "citations":  [
+                                                           "RISK-01:P1"
+                                                       ]
+                                     },
+                                     {
+                                         "id":  "conflict",
+                                         "expected":  "mixed",
+                                         "observed":  "mixed",
+                                         "pass":  true,
+                                         "rationale":  "BUDGET-A:P1 says 500, BUDGET-B:P1 says 700.",
+                                         "citations":  [
+                                                           "BUDGET-A:P1",
+                                                           "BUDGET-B:P1"
+                                                       ]
+                                     }
+                                 ]
+                 }
+             ]
+}

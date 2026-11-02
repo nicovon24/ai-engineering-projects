@@ -1,0 +1,8 @@
+[
+  {"id":"sample","es":"24 de 40 solicitudes encajan en las categorías del piloto.","en":"24 of 40 requests fit the pilot categories.","expected":"supported","passages":["PILOT-01:P1"]},
+  {"id":"future","es":"El piloto reducirá el tiempo futuro de atención un 25%.","en":"The pilot will reduce future handling time by 25%.","expected":"insufficient","passages":["PILOT-01:P2"]},
+  {"id":"cost","es":"La estimación del proveedor incluye el tiempo de revisión y los controles.","en":"The provider estimate includes reviewer time and controls.","expected":"contradicted","passages":["COST-01:P1"]},
+  {"id":"total","es":"Ya se conoce el costo total por solicitud elegible.","en":"The total cost per eligible request is already known.","expected":"insufficient","passages":["COST-01:P2"]},
+  {"id":"errors","es":"Ningún borrador incorrecto puede llegar a una persona.","en":"No incorrect draft can reach an employee.","expected":"insufficient","passages":["RISK-01:P1"]},
+  {"id":"conflict","es":"El presupuesto aprobado del piloto es de 500 unidades.","en":"The approved pilot budget is 500 units.","expected":"mixed","passages":["BUDGET-A:P1","BUDGET-B:P1"]}
+]
