@@ -17,12 +17,14 @@ const generalAnswerSchema = z.object({
   text: z.string().trim().min(1).max(800),
 }).strict();
 
-function generalQuestionBoundary(question: string): "cannot_verify" | "current_data" | null {
+function generalQuestionBoundary(question: string, allowDomainNouns = false): "cannot_verify" | "current_data" | null {
   const normalized = question.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   if (/\b(cuanto vale|cuanto cuesta|how much is|market value|valor de mercado)\b/.test(normalized)) return "current_data";
   if (/\b(cuanto cobra|cuanto gana|how much does .* earn)\b/.test(normalized)) return "cannot_verify";
-  if (/\b(today|now|currently|latest|recent|live|price|stock|weather|news|schedule|law|legal|exchange rate|president|minister|ceo|population|gdp|election|who|hoy|ahora|actualmente|ultimo|reciente|precio|cotizacion|clima|noticia|ley|normativa|presidente|ministro|director|poblacion|eleccion|quien)\b|\b(head of state|as of|this week|this month|this year|esta semana|este mes|este ano|jefe de estado)\b/.test(normalized)) return "current_data";
-  if (/\b(my|mine|me|our|ours|mi|mis|mio|mia|mios|mias|yo|nuestro|nuestra|nuestros|nuestras|file|document|pdf|uploaded|attached|archivo|documento|adjunto|cv|resume|curriculum|salary|earn|earns|income|age|birthday|address|phone|email|married|employer|occupation|net worth|sueldo|salario|ingresos|gana|edad|cumpleanos|direccion|telefono|correo|casado|empleador|patrimonio)\b|\.(pdf|docx|txt|md)\b|\b[\p{L}]+['’]s\b/iu.test(normalized)) return "cannot_verify";
+  if (/\b(today|now|currently|latest|recent|live|price|stock|weather|news|schedule|law|legal|exchange rate|president|minister|ceo|population|gdp|election|hoy|ahora|actualmente|ultimo|reciente|precio|cotizacion|clima|noticia|ley|normativa|presidente|ministro|director|poblacion|eleccion)\b|\b(head of state|as of|this week|this month|this year|esta semana|este mes|este ano|jefe de estado)\b/.test(normalized)) return "current_data";
+  if (/\b(who|quien)\b/.test(normalized)) return "cannot_verify";
+  if (/\b(my|mine|me|our|ours|mi|mis|mio|mia|mios|mias|yo|nuestro|nuestra|nuestros|nuestras|uploaded|attached|adjunto|cv|resume|curriculum|salary|earn|earns|income|age|birthday|address|phone|email|married|employer|occupation|net worth|sueldo|salario|ingresos|gana|edad|cumpleanos|direccion|telefono|correo|casado|empleador|patrimonio)\b|\.(pdf|docx|txt|md)\b|\b[\p{L}]+['’]s\b/iu.test(normalized)) return "cannot_verify";
+  if (!allowDomainNouns && /\b(file|document|pdf|archivo|documento)\b/.test(normalized)) return "cannot_verify";
   return null;
 }
 
@@ -78,7 +80,7 @@ function unsupportedGeneralQuestion(locale: Locale): GeneralAnswer {
 
 function generalTextClaimsSources(text: string): boolean {
   const normalized = text.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  return /\[[0-9]+\]|passage_id|document_id|\b(according to|as stated in|segun|de acuerdo con|page|pagina|archivo|documento|file|document|pdf|adjunto|source passage|pasaje de origen)\b|\.(pdf|docx|txt|md)\b/i.test(normalized);
+  return /\[[0-9]+\]|passage_id|document_id|\b(according to|as stated in|segun|de acuerdo con|source passage|pasaje de origen)\b|\.(pdf|docx|txt|md)\b|\b(?:your|my|our|tu|tus|mi|mis|su|sus|nuestro|nuestra)\s+(?:upload|uploads|file|files|document|documents|pdf|archivo|archivos|documento|documentos)\b|\b(?:from|in|based on|en|desde|basado en)\s+(?:the|this|that|el|la|este|esta|ese|esa)\s+(?:file|document|pdf|archivo|documento)\b|\b(?:(?:the|this|that|a|an|el|la|un|una|your|tu|su)\s+)?(?:file|document|pdf|archivo|documento)\s+(?:says|states|confirms|shows|proves|indicates|reports|dice|afirma|confirma|muestra|demuestra|indica|reporta)\b/i.test(normalized);
 }
 
 export async function generateGeneralAnswer(question: string, locale: Locale): Promise<GeneralAnswer> {
@@ -127,7 +129,7 @@ export async function generateGeneralAnswer(question: string, locale: Locale): P
     const parsed = generalAnswerSchema.parse(JSON.parse(content));
     if (parsed.kind !== "general") return fixedGeneralBoundary(parsed.kind, locale);
     if (generalTextClaimsSources(parsed.text)) return fixedGeneralBoundary("cannot_verify", locale);
-    const textBoundary = generalQuestionBoundary(parsed.text);
+    const textBoundary = generalQuestionBoundary(parsed.text, true);
     if (textBoundary) return fixedGeneralBoundary(textBoundary, locale);
     const normalizedText = parsed.text.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     if (!conceptAliases.some((alias) => normalizedText.includes(alias))) return unsupportedGeneralQuestion(locale);
@@ -144,6 +146,7 @@ export async function generateAnswer(
   question: string,
   locale: Locale,
   passages: Passage[],
+  nameAliasIsSearchHint = false,
 ): Promise<{ status: "answered" | "insufficient_evidence" | "evidence_only"; claims: AnswerClaim[] }> {
   if (passages.length === 0) return { status: "insufficient_evidence", claims: [] };
 
@@ -159,6 +162,7 @@ export async function generateAnswer(
     "If the passages do not directly support an answer, set status to insufficient_evidence and return no claims.",
     'Return a JSON object with exactly two keys: "status" and "claims". The status value must be exactly "answered" or "insufficient_evidence"; never use "ok" or another value. For "answered", include at least one claim. Each claim has text and passageIds, and must cite at least one supplied PASSAGE_ID that directly supports it.',
     "Do not add general knowledge or make up citations. Keep claims short and factual.",
+    ...(nameAliasIsSearchHint ? ["The user used a nickname expanded only to find candidate passages. The source passages do not establish that the nickname identifies the named person. Do not assert that identity as a fact. If the passages answer for the named person, begin the answer conditionally: 'Si te referís a Nicolás...' in Spanish or 'If you mean Nicolás...' in English; otherwise abstain."] : []),
   ].join("\n");
 
   let response: Response;
@@ -204,6 +208,13 @@ export async function generateAnswer(
     throw new AppError("provider_invalid_answer");
   }
   if (parsed.status === "insufficient_evidence") return { status: "insufficient_evidence", claims: [] };
+
+  if (nameAliasIsSearchHint && parsed.claims.some((claim) => {
+    const condition = claim.text.match(/^(?:si (?:te refer[ií]s a|te refieres a|por nico te refer[ií]s a|por nico te refieres a)|if (?:you mean|by nico you mean))\s+nicol[aá]s(?=[\s,.:;!?]|$)/i);
+    return !condition || /\bnico\b/i.test(claim.text.slice(condition[0].length));
+  })) {
+    return { status: "insufficient_evidence", claims: [] };
+  }
 
   const allowedIds = new Set(passages.map((passage) => passage.id));
   if (parsed.claims.some((claim) => claim.passageIds.some((id) => !allowedIds.has(id)))) {

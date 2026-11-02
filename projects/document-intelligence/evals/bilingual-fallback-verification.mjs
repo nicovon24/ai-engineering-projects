@@ -110,6 +110,40 @@ try {
   globalThis.fetch = async () => providerResponse({ kind: "general", text: "According to [1], an answer." });
   checked("general output cannot include a passage marker", (await generateGeneralAnswer("Explain photosynthesis", "en")).kind === "cannot_verify");
 
+  const conceptExplanations = [
+    ["What is retrieval?", "en", "Retrieval finds a relevant document or file for a question."],
+    ["What is RAG?", "en", "RAG retrieves relevant documents before generating an answer."],
+    ["What is OCR?", "en", "OCR extracts text from a scanned file."],
+    ["What is JSON?", "en", "JSON stores structured data in a file."],
+    ["¿Qué es recuperación de información?", "es", "La recuperación de información encuentra un documento relevante para una pregunta."],
+    ["¿Qué es RAG?", "es", "RAG recupera documentos relevantes antes de generar una respuesta."],
+    ["¿Qué es OCR?", "es", "OCR extrae texto de un archivo escaneado."],
+    ["¿Qué es JSON?", "es", "JSON representa datos estructurados en un documento."],
+  ];
+  for (const [question, locale, explanation] of conceptExplanations) {
+    globalThis.fetch = async () => providerResponse({ kind: "general", text: explanation });
+    checked(`general concept permits domain nouns: ${question}`, (await generateGeneralAnswer(question, locale)).kind === "general");
+  }
+
+  const sourceClaims = [
+    "RAG from your upload confirms Alice is qualified.",
+    "RAG according to your document confirms Alice is qualified.",
+    "RAG in the attached file confirms Alice is qualified.",
+    "RAG from the document confirms Alice is qualified.",
+    "RAG: the document says Alice is qualified.",
+    "RAG: PDF says Alice is qualified.",
+    "RAG: A document confirms Alice is qualified.",
+    "RAG: Archivo confirma que Alice está calificada.",
+    "RAG: Your PDF confirms Alice is qualified.",
+    "RAG según tu archivo confirma que Alice está calificada.",
+    "RAG en el archivo confirma que Alice está calificada.",
+    "RAG: el documento confirma que Alice está calificada.",
+  ];
+  for (const claim of sourceClaims) {
+    globalThis.fetch = async () => providerResponse({ kind: "general", text: claim });
+    checked(`general output rejects source attribution: ${claim}`, (await generateGeneralAnswer("What is RAG?", "en")).kind === "cannot_verify");
+  }
+
   process.stdout.write(`${checks.length}/${checks.length} bilingual fallback checks passed.\n`);
 } finally {
   globalThis.fetch = originalFetch;

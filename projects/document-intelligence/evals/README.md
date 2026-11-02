@@ -6,6 +6,8 @@ Run `python evals/generate_format_fixtures.py` from the application directory. T
 
 DI-005 still needs a permitted real DOCX, broader parser coverage, multi-file cases, and answer metrics.
 
+Run `node evals/semantic-model-calibration.mjs` for the pinned multilingual model's small synthetic score checkpoint and `node evals/semantic-name-verification.mjs` for bounded nickname scoping cases. The [semantic retrieval review](../docs/features/03-answer-quality/01-semantic-retrieval/review.md) records the observed numbers, a private aggregate checkpoint, browser behavior, and limits. These scripts do not score generated claim support.
+
 The first narrow retrieval corpus is now in `retrieval-cases.json`. Run `node evals/run-retrieval.mjs` to reproduce its keyless passage recall, annotated precision, empty-result, and local retrieval-timing baseline; see [retrieval-baseline.md](retrieval-baseline.md) for the observed result and limits. It does not yet cover model answers or document parsing.
 
 The retrieval runner imports the TypeScript retrieval module directly and was checked with Node.js 24.15.0. Older Node.js versions may need a TypeScript runner.

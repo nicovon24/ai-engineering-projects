@@ -20,6 +20,12 @@ export type DocumentRecord = {
   passages: Passage[];
 };
 
+export type DocumentVectorIndex = {
+  modelVersion: string;
+  documentId: string;
+  passages: { passageId: string; vectors: number[][] }[];
+};
+
 export type AnswerClaim = {
   text: string;
   passageIds: string[];
@@ -38,6 +44,7 @@ export type QuestionRecord = {
   status: "answered" | "insufficient_evidence" | "evidence_only";
   claims: AnswerClaim[];
   passageIds: string[];
+  retrievalMode?: "hybrid" | "lexical_fallback";
   generalAnswer?: GeneralAnswer | null;
 };
 

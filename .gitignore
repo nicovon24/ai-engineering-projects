@@ -8,6 +8,7 @@ node_modules/
 .env.*.local
 *.tsbuildinfo
 .playwright-cli/
+/debug.log
 .impeccable/review/
 /projects/document-intelligence/evals/fixtures/formats/
 /projects/*/.impeccable/review/

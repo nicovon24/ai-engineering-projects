@@ -4,7 +4,9 @@ import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { AppError } from "@/lib/errors";
+import { MAX_DOCUMENTS } from "@/lib/limits";
 import { parseDocument } from "@/lib/parse-document";
+import { buildDocumentVectorIndex } from "@/lib/semantic-search";
 import { addDocument, createWorkspace, readWorkspace, removeDocument, removeWorkspace, SESSION_COOKIE } from "@/lib/storage";
 import type { Locale } from "@/lib/types";
 
@@ -32,11 +34,14 @@ export async function uploadDocument(formData: FormData): Promise<ActionResult> 
     const document = await parseDocument(file, randomUUID());
     const cookieStore = await cookies();
     let token = cookieStore.get(SESSION_COOKIE)?.value;
-    if (!await readWorkspace(token)) {
+    const existingWorkspace = await readWorkspace(token);
+    if (existingWorkspace && existingWorkspace.documents.length >= MAX_DOCUMENTS) throw new AppError("document_limit");
+    if (!existingWorkspace) {
       const created = await createWorkspace();
       token = created.token;
     }
-    await addDocument(token!, document, Buffer.from(await file.arrayBuffer()));
+    const vectors = await buildDocumentVectorIndex(document).catch(() => undefined);
+    await addDocument(token!, document, Buffer.from(await file.arrayBuffer()), vectors);
     await setSessionCookie(token!);
     revalidatePath("/");
     return { ok: true };

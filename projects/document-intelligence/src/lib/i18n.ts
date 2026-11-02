@@ -3,6 +3,7 @@ import type { Locale } from "./types";
 export const copy = {
   es: {
     appName: "Document Intelligence",
+    skipToContent: "Ir al contenido",
     themeLight: "Tema claro",
     themeDark: "Tema oscuro",
     themeToggle: "Modo oscuro",
@@ -43,6 +44,7 @@ export const copy = {
     evidenceOnly: "Pasajes relacionados",
     evidenceOnlyHint: "Estos pasajes coinciden con tu búsqueda. No son una respuesta generada por IA.",
     insufficient: "No hay evidencia suficiente en estos archivos para responder.",
+    semanticUnavailable: "La búsqueda semántica no estuvo disponible; usamos la búsqueda por palabras para esta pregunta.",
     generalAnswer: "Información fuera de los archivos",
     generalAnswerHint: "No está respaldada por tus archivos ni tiene citas documentales. Comprobá los datos importantes por tu cuenta.",
     sources: "Fuente",
@@ -53,6 +55,7 @@ export const copy = {
     download: "Descargar original",
     citationsNote: "Las citas señalan pasajes reales. Verificá que respalden cada afirmación.",
     loading: "Procesando…",
+    questionPending: "Buscando una respuesta…",
     pageShort: "p.",
     fileCount: "archivos",
     questionCount: "preguntas usadas",
@@ -86,6 +89,7 @@ export const copy = {
   },
   en: {
     appName: "Document Intelligence",
+    skipToContent: "Skip to content",
     themeLight: "Light theme",
     themeDark: "Dark theme",
     themeToggle: "Dark mode",
@@ -126,6 +130,7 @@ export const copy = {
     evidenceOnly: "Related passages",
     evidenceOnlyHint: "These passages match your search. They are not an AI-generated answer.",
     insufficient: "There is not enough evidence in these files to answer.",
+    semanticUnavailable: "Semantic search was unavailable; we used word matching for this question.",
     generalAnswer: "Information beyond these files",
     generalAnswerHint: "This is not supported by your files and has no document citations. Verify important details independently.",
     sources: "Source",
@@ -136,6 +141,7 @@ export const copy = {
     download: "Download original",
     citationsNote: "Citations point to real passages. Check that they support each claim.",
     loading: "Processing…",
+    questionPending: "Finding an answer…",
     pageShort: "p.",
     fileCount: "files",
     questionCount: "questions used",

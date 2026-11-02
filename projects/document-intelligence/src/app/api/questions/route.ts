@@ -4,9 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { generateAnswer, generateGeneralAnswer } from "@/lib/answer";
 import { AppError } from "@/lib/errors";
-import { isOverviewQuestion, retrievePassages, retrieveWithRewrites } from "@/lib/retrieval";
+import { MAX_QUESTIONS } from "@/lib/limits";
+import { expandGroundedNames, isOverviewQuestion } from "@/lib/retrieval";
+import { prepareSemanticSearch, retrieveHybrid } from "@/lib/semantic-search";
 import { rewriteSearches } from "@/lib/query-rewrite";
-import { addQuestion, releaseQuestion, reserveQuestion, SESSION_COOKIE } from "@/lib/storage";
+import { addQuestion, readWorkspace, releaseQuestion, reserveQuestion, SESSION_COOKIE } from "@/lib/storage";
 import type { QuestionRecord } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -37,15 +39,21 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get(SESSION_COOKIE)?.value;
     if (!token) throw new AppError("session_expired");
+    const currentWorkspace = await readWorkspace(token);
+    if (!currentWorkspace) throw new AppError("session_expired");
+    if (currentWorkspace.documents.length === 0) throw new AppError("no_documents");
+    if (currentWorkspace.questions.length >= MAX_QUESTIONS) throw new AppError("question_limit");
+    // Cold model loading and legacy index backfill happen before the two-minute question reservation.
+    const prepared = isOverviewQuestion(parsed.data.question) ? null :
+      await prepareSemanticSearch(token, currentWorkspace, parsed.data.question).catch(() => null);
     const { workspace, reservationId } = await reserveQuestion(token);
     try {
       const rewrites = process.env.GROQ_API_KEY && !isOverviewQuestion(parsed.data.question)
         ? await rewriteSearches(parsed.data.question, parsed.data.locale)
         : [];
-      const passages = rewrites.length > 0
-        ? retrieveWithRewrites(workspace, parsed.data.question, rewrites)
-        : retrievePassages(workspace, parsed.data.question);
-      const answer = await generateAnswer(parsed.data.question, parsed.data.locale, passages);
+      const { passages, mode } = await retrieveHybrid(workspace, parsed.data.question, rewrites, prepared);
+      const nicknameUsedAsSearchHint = expandGroundedNames(workspace, parsed.data.question) !== parsed.data.question;
+      const answer = await generateAnswer(parsed.data.question, parsed.data.locale, passages, nicknameUsedAsSearchHint);
       let generalAnswer: QuestionRecord["generalAnswer"] = null;
       if (process.env.GROQ_API_KEY && answer.status === "insufficient_evidence") {
         try {
@@ -62,6 +70,7 @@ export async function POST(request: NextRequest) {
         status: answer.status,
         claims: answer.claims,
         passageIds: passages.map((passage) => passage.id),
+        retrievalMode: mode,
         ...(generalAnswer ? { generalAnswer } : {}),
       };
       await addQuestion(token, reservationId, record);

@@ -3,7 +3,7 @@ import { mkdir, open, readFile, rename, rm, stat, writeFile } from "node:fs/prom
 import path from "node:path";
 import { AppError } from "./errors";
 import { MAX_DOCUMENTS, MAX_QUESTIONS, WORKSPACE_TTL_MS } from "./limits";
-import type { DocumentRecord, QuestionRecord, WorkspaceRecord } from "./types";
+import type { DocumentRecord, DocumentVectorIndex, QuestionRecord, WorkspaceRecord } from "./types";
 
 export const SESSION_COOKIE = "document_intelligence_session";
 const dataRoot = path.join(process.cwd(), ".data", "workspaces");
@@ -19,6 +19,11 @@ function workspacePath(token: string): string {
 function filePath(token: string, document: DocumentRecord): string {
   if (!idPattern.test(document.id)) throw new AppError("invalid_file");
   return path.join(workspacePath(token), "files", `${document.id}.${document.extension}`);
+}
+
+function vectorPath(token: string, documentId: string): string {
+  if (!idPattern.test(documentId)) throw new AppError("invalid_file");
+  return path.join(workspacePath(token), "vectors", `${documentId}.json`);
 }
 
 function nextExpiry(): string {
@@ -95,18 +100,24 @@ function renew(workspace: WorkspaceRecord): void {
   workspace.expiresAt = nextExpiry();
 }
 
-export async function addDocument(token: string, document: DocumentRecord, bytes: Buffer): Promise<WorkspaceRecord> {
+export async function addDocument(token: string, document: DocumentRecord, bytes: Buffer, vectors?: DocumentVectorIndex): Promise<WorkspaceRecord> {
   return withWorkspaceLock(token, async () => {
     const workspace = await readWorkspace(token);
     if (!workspace) throw new AppError("session_expired");
     if (workspace.documents.length >= MAX_DOCUMENTS) throw new AppError("document_limit");
     await writeFile(filePath(token, document), bytes, { flag: "wx", mode: 0o600 });
-    workspace.documents.push(document);
-    renew(workspace);
     try {
+      if (vectors) {
+        if (vectors.documentId !== document.id) throw new AppError("invalid_file");
+        await mkdir(path.dirname(vectorPath(token, document.id)), { recursive: true, mode: 0o700 });
+        await writeFile(vectorPath(token, document.id), JSON.stringify(vectors), { flag: "wx", mode: 0o600 });
+      }
+      workspace.documents.push(document);
+      renew(workspace);
       await writeWorkspace(token, workspace);
     } catch (error) {
       await rm(filePath(token, document), { force: true });
+      await rm(vectorPath(token, document.id), { force: true });
       throw error;
     }
     return workspace;
@@ -124,7 +135,38 @@ export async function removeDocument(token: string, documentId: string): Promise
     workspace.pendingQuestions = [];
     await writeWorkspace(token, workspace);
     await rm(filePath(token, document), { force: true });
+    await rm(vectorPath(token, document.id), { force: true });
     return workspace;
+  });
+}
+
+export async function readDocumentVectors(token: string, documentId: string): Promise<DocumentVectorIndex | null> {
+  try {
+    return JSON.parse(await readFile(vectorPath(token, documentId), "utf8")) as DocumentVectorIndex;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+export async function saveDocumentVectors(token: string, document: DocumentRecord, vectors: DocumentVectorIndex): Promise<void> {
+  if (vectors.documentId !== document.id) throw new AppError("invalid_file");
+  await withWorkspaceLock(token, async () => {
+    const workspace = await readWorkspace(token);
+    const current = workspace?.documents.find((item) => item.id === document.id);
+    if (!current || current.passages.length !== document.passages.length ||
+      current.passages.some((passage, index) => passage.id !== document.passages[index]?.id)) {
+      throw new AppError("workspace_changed");
+    }
+    const target = vectorPath(token, document.id);
+    await mkdir(path.dirname(target), { recursive: true, mode: 0o700 });
+    const temporary = `${target}.${randomUUID()}.tmp`;
+    try {
+      await writeFile(temporary, JSON.stringify(vectors), { encoding: "utf8", mode: 0o600 });
+      await rename(temporary, target);
+    } finally {
+      await rm(temporary, { force: true });
+    }
   });
 }
 

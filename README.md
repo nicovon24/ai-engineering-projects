@@ -30,7 +30,7 @@ The order below is the intended development order. Only the first, fifth, and th
 
 ## Working records
 
-The [repository agent guide](AGENTS.md) defines the SDD and CHECKLOG workflow. [Repository workflow tasks](docs/specs/tasks.md) track shared documentation. Every existing project has a root `CHECKLOG.md` for recent, manually checked context and a `docs/specs/tasks.md` file for task status. The active Document Intelligence requirements and architecture live under [its feature documents](projects/document-intelligence/docs/features/document-qa/requirements.md).
+The [repository agent guide](AGENTS.md) defines the SDD and CHECKLOG workflow. [Repository workflow tasks](docs/specs/tasks.md) track shared documentation. Every existing project has a root `CHECKLOG.md` for recent, manually checked context and a `docs/specs/tasks.md` file for task status. The active Document Intelligence requirements and architecture live under [its numbered feature plans](projects/document-intelligence/docs/features/README.md).
 
 ## Engineering direction
 

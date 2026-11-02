@@ -23,6 +23,7 @@ Redesign the existing Document Intelligence workspace as a focused document conv
 - **REQ-UI-005:** Existing upload, remove, workspace delete, question submission, citation selection, and source download wiring remains intact.
 - **REQ-UI-006:** Reusable Button, Textarea, and related interface primitives follow the shadcn/ui local-component pattern and exist as local source files, with no runtime dependency on a component registry.
 - **REQ-UI-007:** The interface does not claim unsupported upload, retrieval, citation quality, or production readiness.
+- **REQ-UI-008:** The workspace fits within the visible viewport at common desktop and mobile sizes. Documents, chat history, and sources scroll within their own regions when content grows. Saved questions appear oldest to newest; a newly added question brings the latest message into view without interrupting later manual reading. Mobile panels remain accessible and return keyboard focus to their opener when closed.
 
 ## Evidence and next step
 

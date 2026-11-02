@@ -23,3 +23,11 @@ The coordinator created `/root/workspace_ui_v2_review` with `collaboration.spawn
 ## Checks and limits
 
 `npm run lint`, `npm run typecheck`, and `npm run build` each exited 0 after the last UI code edits. No automated application tests were added. UI-001 is complete for the local prototype. Broad parser compatibility, semantic claim support, scheduled deletion, abuse controls, and public readiness are separate work.
+
+## UI-002 viewport and chat review (2026-11-01)
+
+- The shell now occupies `100dvh`; the document rail, history, and source region scroll internally. The introduction disappears after the first saved question, leaving more room for the chat. Questions render in stored append order, and a change to the latest question ID scrolls the history to its end.
+- Playwright CLI observed no document-level vertical or horizontal overflow at 1280×720, 1024×768, 390×844, and 320×568. At 640×360, the history retained a 90 px scroll region and the conversation itself remained scrollable. A 1000-character unbroken question and passage stayed within the 320 px viewport.
+- A temporary synthetic TXT and two locally injected UI records showed oldest-to-newest order and bottom positioning (`scrollTop` 479, `scrollHeight` 642, `clientHeight` 163 at 320×568). The history stayed at the manually chosen top position after a theme change. Mobile document and source panels filled only the available height; closing each restored focus to its opener. At 1024 px, the source panel opened within the viewport. The synthetic workspace and files were deleted after review.
+- A read-only independent reviewer requested `gpt-6-sol` high and identified focus restoration and long-word clipping; both were corrected. The runtime did not expose its confirmed model or effort. The final Impeccable detector returned `[]`; lint and typecheck exited 0. No automated test was added.
+- Automatic approval review rejected a live Groq question because it could send a query and file passages to an external provider without specific authorization. The two chat records were inserted locally for interface verification; this review does not establish live question submission or model behavior after the UI change.

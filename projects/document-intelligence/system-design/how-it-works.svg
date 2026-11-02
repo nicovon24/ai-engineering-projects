@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="1080" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Arial, sans-serif" aria-labelledby="how-it-works-title how-it-works-desc" id="how-it-works-root">
+    <title id="how-it-works-title">How the document workspace works</title>
+    <desc id="how-it-works-desc">Five visitor actions align with the visible interface and the server work behind it.</desc>
+    <defs>
+      <style>#how-it-works-root { color: #2d3142; font-family: Geist, system-ui, sans-serif; }
+      #how-it-works-root .diagram-container { width: 100%; overflow-x: auto; }
+      #how-it-works-root .node { fill: #2d3142; font: 600 18px Geist, system-ui, sans-serif; }
+      #how-it-works-root .diagram-title { fill: #2d3142; font: 400 40px 'Instrument Serif', Georgia, serif; }
+      #how-it-works-root .sub { fill: #5a6580; font: 400 13px 'Geist Mono', monospace; }
+      #how-it-works-root .tag, #how-it-works-root .eyebrow, #how-it-works-root .row-label { fill: #4f5d75; font: 500 11px 'Geist Mono', monospace; letter-spacing: .10em; }
+      #how-it-works-root .stage { fill: #2d3142; font: 600 18px Geist, system-ui, sans-serif; }
+      #how-it-works-root .arrow-label { fill: #4f5d75; font: 400 11px 'Geist Mono', monospace; letter-spacing: .06em; }
+      #how-it-works-root .note { fill: #4f5d75; font: 400 15px Geist, system-ui, sans-serif; }
+      #how-it-works-root .diagram-footer { fill: #4f5d75; font: 400 12px 'Geist Mono', monospace; }
+      @media print {
+#how-it-works-root .diagram-container { overflow-x: visible; }
+}</style>
+      <marker id="how-it-works-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#4f5d75"/></marker>
+      <marker id="how-it-works-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#bf4520"/></marker>
+      <marker id="how-it-works-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#2e5aa8"/></marker>
+    </defs>
+    <rect width="1280" height="720" fill="#f5f5f5"/>
+    <text x="96" y="84" class="eyebrow" font-size="11" text-anchor="start">CURRENT LOCAL PROTOTYPE</text>
+<text x="88" y="222" class="row-label" font-size="11" text-anchor="end">VISITOR</text>
+<text x="88" y="334" class="row-label" font-size="11" text-anchor="end">VISIBLE UI</text>
+<text x="88" y="446" class="row-label" font-size="11" text-anchor="end">SERVER</text>
+<line x1="96" y1="268" x2="1200" y2="268" stroke="#bfc0c0" data-role="interaction"/>
+<line x1="96" y1="376" x2="1200" y2="376" stroke="#2d3142" stroke-width="2" data-role="visibility" stroke-opacity="0.55"/>
+<rect x="96" y="104" width="208" height="48" rx="2" fill="#f5f5f5" stroke="#bfc0c0" data-stage="upload"/>
+<text x="200" y="134" class="stage" font-size="18" text-anchor="middle">01  UPLOAD</text>
+<g data-layer="customer"><rect x="96" y="176" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="upload" data-name="Upload a file"/>
+<text x="200" y="222" class="node" font-size="18" text-anchor="middle">Upload a file</text>
+</g>
+<g data-layer="frontstage"><rect x="96" y="288" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="upload" data-name="File listed"/>
+<text x="200" y="334" class="node" font-size="18" text-anchor="middle">File listed</text>
+</g>
+<g data-layer="backstage"><rect x="96" y="400" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="upload" data-name="Parse + index"/>
+<text x="200" y="436" class="node" font-size="18" text-anchor="middle">Parse + index</text>
+<text x="200" y="458" class="sub" font-size="13" text-anchor="middle">files; passages; vectors</text></g>
+<rect x="320" y="104" width="208" height="48" rx="2" fill="#f5f5f5" stroke="#bfc0c0" data-stage="ask"/>
+<text x="424" y="134" class="stage" font-size="18" text-anchor="middle">02  ASK</text>
+<g data-layer="customer"><rect x="320" y="176" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="ask" data-name="Ask in ES / EN"/>
+<text x="424" y="222" class="node" font-size="18" text-anchor="middle">Ask in ES / EN</text>
+</g>
+<g data-layer="frontstage"><rect x="320" y="288" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="ask" data-name="Mode + quota"/>
+<text x="424" y="334" class="node" font-size="18" text-anchor="middle">Mode + quota</text>
+</g>
+<g data-layer="backstage"><rect x="320" y="400" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="ask" data-name="Reserve + retrieve"/>
+<text x="424" y="436" class="node" font-size="18" text-anchor="middle">Reserve + retrieve</text>
+<text x="424" y="458" class="sub" font-size="13" text-anchor="middle">lexical + semantic</text></g>
+<rect x="544" y="104" width="208" height="48" rx="2" fill="#f5f5f5" stroke="#bfc0c0" data-stage="review"/>
+<text x="648" y="134" class="stage" font-size="18" text-anchor="middle">03  REVIEW</text>
+<g data-layer="customer"><rect x="544" y="176" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="review" data-name="Read result"/>
+<text x="648" y="222" class="node" font-size="18" text-anchor="middle">Read result</text>
+</g>
+<g data-layer="frontstage"><rect x="544" y="288" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="review" data-name="Result shown"/>
+<text x="648" y="334" class="node" font-size="18" text-anchor="middle">Result shown</text>
+</g>
+<g data-layer="backstage"><rect x="544" y="400" width="208" height="80" rx="6" fill="#f1e7e4" stroke="#bf4520" data-stage="review" data-name="Generate + check" data-focal="true"/>
+<text x="648" y="436" class="node" font-size="18" text-anchor="middle">Generate + check</text>
+<text x="648" y="458" class="sub" font-size="13" text-anchor="middle">cited IDs validated</text></g>
+<rect x="768" y="104" width="208" height="48" rx="2" fill="#f5f5f5" stroke="#bfc0c0" data-stage="inspect"/>
+<text x="872" y="134" class="stage" font-size="18" text-anchor="middle">04  INSPECT</text>
+<g data-layer="customer"><rect x="768" y="176" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="inspect" data-name="Open a source"/>
+<text x="872" y="222" class="node" font-size="18" text-anchor="middle">Open a source</text>
+</g>
+<g data-layer="frontstage"><rect x="768" y="288" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="inspect" data-name="Source panel"/>
+<text x="872" y="334" class="node" font-size="18" text-anchor="middle">Source panel</text>
+</g>
+<g data-layer="backstage"><rect x="768" y="400" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="inspect" data-name="Authorize source"/>
+<text x="872" y="436" class="node" font-size="18" text-anchor="middle">Authorize source</text>
+<text x="872" y="458" class="sub" font-size="13" text-anchor="middle">exact passage + file</text></g>
+<rect x="992" y="104" width="208" height="48" rx="2" fill="#f5f5f5" stroke="#bfc0c0" data-stage="delete"/>
+<text x="1096" y="134" class="stage" font-size="18" text-anchor="middle">05  DELETE</text>
+<g data-layer="customer"><rect x="992" y="176" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="delete" data-name="Delete workspace"/>
+<text x="1096" y="222" class="node" font-size="18" text-anchor="middle">Delete workspace</text>
+</g>
+<g data-layer="frontstage"><rect x="992" y="288" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="delete" data-name="Workspace cleared"/>
+<text x="1096" y="334" class="node" font-size="18" text-anchor="middle">Workspace cleared</text>
+</g>
+<g data-layer="backstage"><rect x="992" y="400" width="208" height="80" rx="6" fill="#ffffff" stroke="#bfc0c0" data-stage="delete" data-name="Delete local data"/>
+<text x="1096" y="436" class="node" font-size="18" text-anchor="middle">Delete local data</text>
+<text x="1096" y="458" class="sub" font-size="13" text-anchor="middle">files + JSON + vectors</text></g>
+<line x1="96" y1="528" x2="1200" y2="528" stroke="#bfc0c0"/>
+<text x="96" y="558" class="note" font-size="15" text-anchor="start">Above the line: what the visitor sees. Below: server work for the same action.</text>
+<text x="96" y="586" class="note" font-size="15" text-anchor="start">No key: evidence only. No supporting passage: insufficient evidence. Deletion removes the local workspace.</text>
+<line x1="40" y1="644" x2="1240" y2="644" stroke="#bfc0c0"/>
+<text x="40" y="668" class="eyebrow" font-size="11" text-anchor="start">SERVICE BLUEPRINT</text>
+<text x="252" y="668" class="diagram-footer" font-size="12" text-anchor="start">Five visible actions; five corresponding server operations.</text>
+  </svg>

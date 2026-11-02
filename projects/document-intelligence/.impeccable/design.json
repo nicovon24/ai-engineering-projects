@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-01T23:50:00Z",
+  "title": "Design System: Document Intelligence",
+  "extensions": {
+    "colorMeta": {
+      "light-action": { "role": "primary", "displayName": "Terracotta Orange", "canonical": "#a64d2c", "tonalRamp": ["#f7e9df", "#a64d2c", "#8f3e21"] },
+      "dark-action": { "role": "primary", "displayName": "Soft Apricot Orange", "canonical": "#e69a72", "tonalRamp": ["#433026", "#e69a72", "#efa57e"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Reading Desk Display", "purpose": "Single introductory heading." },
+      "body": { "displayName": "Workspace Body", "purpose": "Controls, answers, documents, and source passages." }
+    },
+    "shadows": [
+      { "name": "composer", "value": "0 10px 30px rgba(30, 18, 10, .09)", "purpose": "Separates the question composer from conversation history." }
+    ],
+    "motion": [
+      { "name": "control-state", "value": "background-color, border-color, color, box-shadow, transform", "purpose": "Brief hover and focus feedback on controls." }
+    ],
+    "breakpoints": [
+      { "name": "source-overlay", "value": "1100px" },
+      { "name": "single-column", "value": "700px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main submit action in upload and question flows.",
+      "html": "<button class=\"ds-primary\">Upload file</button>",
+      "css": ".ds-primary { min-height: 44px; padding: 0 20px; border: 0; border-radius: 10px; background: #a64d2c; color: #fffdf9; font: 600 16px Geist, sans-serif; } .ds-primary:hover { background: #8f3e21; } .ds-primary:focus-visible { outline: 2px solid #a64d2c; outline-offset: 3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "A quiet reading desk",
+    "overview": "Warm paper, brown ink, and restrained orange establish a calm workspace for reading documents and checking sources.",
+    "keyCharacteristics": ["Warm neutral surfaces", "Readable task controls", "Clear evidence path"],
+    "rules": [
+      { "name": "Orange for action", "body": "Reserve orange for primary actions, focus, citations, and small status details.", "section": "colors" }
+    ],
+    "dos": ["Use semantic roles in both themes.", "Keep the composer and latest messages visible within the viewport."],
+    "donts": ["Do not fill reading surfaces with orange.", "Do not couple independent projects at runtime for visual reuse."]
+  }
+}

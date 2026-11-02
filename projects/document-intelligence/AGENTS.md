@@ -28,7 +28,7 @@ Read [PRODUCT.md](PRODUCT.md) for product intent and [README.md](README.md) for 
 | Workspace             | Temporary group of one visitor's documents and questions, addressed by a random session token. It is not an account.                     |
 | Source document       | The original uploaded file. Its name, type, size, page count when available, and passages are recorded with it.                          |
 | Passage               | A chunk of extracted document text with a stable ID, document ID, optional PDF page, and offsets in extracted text.                      |
-| Retrieval             | Selection of passages relevant to a question. Specific questions use lexical matching; optional Groq rewrites aid Spanish/English search; single-document overview requests sample source passages. There are no embeddings or vector search. |
+| Retrieval             | Selection of passages relevant to a question. Specific questions fuse lexical and local multilingual embedding matches; optional Groq rewrites aid lexical search. Single-document overview requests sample source passages. |
 | Claim                 | One factual sentence in a model-generated answer, with one or more cited passage IDs.                                                    |
 | Citation              | A reference from a claim to an existing passage. A valid ID proves the passage exists; it does not prove the passage supports the claim. |
 | Insufficient evidence | A first-class answer outcome when retrieved material cannot support an answer.                                                           |
@@ -50,7 +50,7 @@ The current application is an independent Next.js App Router and TypeScript proj
 | Browser | Bilingual upload, question, history, source passage, and delete UI. The Server Component sends only public workspace fields. | Never send the Groq key, pending reservation IDs, or another visitor's workspace data to the browser. |
 | Session and data | Random HttpOnly session token; local `.data/workspaces/` files and JSON.                                                         | This is a local prototype. Choose a database for workspace metadata, passages, and questions, plus object storage for originals, before a public multi-instance deployment. PostgreSQL is the current recommendation, not an implemented dependency. |
 | Intake           | Text extraction for PDF, DOCX, TXT, and MD; 10-page PDF and 10 MB file limits; passage IDs and offsets.                          | Scanned PDFs are rejected. OCR, durable ingestion jobs, and parser quality checks are later work.                                                                                                                                                    |
-| Retrieval        | Bounded lexical ranking across the current workspace; optional Groq query rewrites receive only question and locale, then merge at most five passages. | Evaluate recall before choosing embeddings or hybrid search. |
+| Retrieval        | Bounded lexical and local semantic rankings across the current workspace; optional Groq rewrites receive only question and locale. A versioned vector index stays under the workspace directory. | The initial similarity threshold has narrow calibration only. Evaluate recall and false positives on more representative files before broad quality claims. |
 | Answer           | Optional server-side Groq call with explicit locale and a Zod-validated JSON shape; cited IDs must belong to retrieved passages. On documentary abstention, a separate general response is limited to conceptual questions and has no citations. | Structural citation checks are implemented. Semantic claim support, bilingual quality, and refusal behavior still need evaluation. |
 | Retention | Successful uploads and saved questions renew access for 24 hours; reads and downloads do not. Expired workspaces are removed on access, and manual deletion is available. | Schedule background deletion of expired workspaces and all derived data before public release. |
 | Abuse controls | Per-workspace file limits and atomic question reservations; stale reservations expire after two minutes. | Add global rate limiting and durable cross-instance quota coordination before public use. |
@@ -61,43 +61,98 @@ The original uploaded bytes and extracted passages are separate data. Questions 
 ### Upload and source flow (current)
 
 ```mermaid
-flowchart LR
-  A[Visitor selects a file] --> B[Server Action: uploadDocument]
-  B --> C[Validate type and size]
-  C --> D[Extract text and check PDF page count]
-  D --> E{Usable text?}
-  E -- No --> F[Localized rejection; do not add file]
-  E -- Yes --> G[Create page or offset linked passages]
-  G --> H[Store original bytes and workspace JSON in .data]
-  H --> I[Refresh workspace UI]
-  I --> J[Authorized document download or passage inspection]
+---
+config:
+  theme: base
+  look: classic
+  layout: dagre
+  themeVariables:
+    background: "#F5F5F5"
+    primaryColor: "#FFFFFF"
+    primaryTextColor: "#2D3142"
+    primaryBorderColor: "#BFC0C0"
+    lineColor: "#4F5D75"
+    fontFamily: "Geist, Inter, Helvetica, Arial, sans-serif"
+---
+flowchart TB
+  accTitle: Current document intake
+  accDescr: The upload action parses a supported file, attempts local passage embeddings, and stores the original and inspectable passages in a temporary workspace.
+  File["Visitor selects file"] --> Action["uploadDocument action"]
+  Action --> Parse["Validate and extract text"]
+  Parse --> Usable{"Usable text and limits?"}
+  Usable -->|"No: localized error"| Reject["Reject without counting file"]
+  Usable -->|"Yes: passages"| Embed["Attempt local passage embeddings"]
+  Embed --> Scope["Read or create workspace"]
+  Scope --> Store["Store original, passages, and optional vector index"]
+  Store --> UI["Refresh workspace UI"]
+  classDef accent fill:#F1E7E4,stroke:#BF4520,color:#2D3142
+  class Store accent
 ```
 
-### Question and answer flow (current)
+### Question retrieval flow (current)
 
 ```mermaid
-flowchart LR
-  A[Visitor asks in es or en] --> B[POST /api/questions]
-  B --> C[Authorize session and reserve question slot]
-  C --> D[Optional Groq rewrite: question and locale only]
-  D --> E[Retrieve up to five lexical or overview passages]
-  E --> P{Passages found?}
-  P -- No --> F[Insufficient evidence]
-  P -- Yes --> G{Groq key configured?}
-  G -- No --> H[Evidence-only passages]
-  G -- Yes --> I[Groq receives question, locale, and retrieved passages]
-  I --> J{Valid JSON and passage IDs?}
-  J -- No --> X[Release slot and show error]
-  J -- Yes --> K[Answered or insufficient evidence]
-  F --> Q[Optional separate general response]
-  Q --> L{Sources still current?}
-  H --> L
-  K --> R{Document answer insufficient?}
-  R -- Yes --> Q
-  R -- No --> L
-  L -- No --> X
-  L -- Yes --> M[Save result and consume slot]
-  M --> N[Render result and inspectable source passages]
+---
+config:
+  theme: base
+  look: classic
+  layout: dagre
+  themeVariables:
+    background: "#F5F5F5"
+    primaryColor: "#FFFFFF"
+    primaryTextColor: "#2D3142"
+    primaryBorderColor: "#BFC0C0"
+    lineColor: "#4F5D75"
+    fontFamily: "Geist, Inter, Helvetica, Arial, sans-serif"
+---
+flowchart TB
+  accTitle: Current question retrieval
+  accDescr: The question route prepares local vectors, reserves a workspace slot, optionally rewrites the question without source text, fuses lexical and semantic results, and selects up to five passages.
+  Ask["Question and selected locale"] --> Route["POST /api/questions"]
+  Route --> Prep["Authorize and prepare local vectors"]
+  Prep --> Reserve["Reserve question slot"]
+  Reserve --> Rewrite{"Groq key and specific question?"}
+  Rewrite -->|"Yes: question and locale only"| Expand["Bounded bilingual rewrites"]
+  Rewrite -->|"No: original question"| Retrieve["Lexical and local semantic retrieval or overview"]
+  Expand -->|"Merge searches"| Retrieve
+  Retrieve -->|"Up to five passages"| Answer["Documentary answer stage"]
+  classDef accent fill:#F1E7E4,stroke:#BF4520,color:#2D3142
+  class Retrieve accent
+```
+
+### Question result flow (current)
+
+```mermaid
+---
+config:
+  theme: base
+  look: classic
+  layout: dagre
+  themeVariables:
+    background: "#F5F5F5"
+    primaryColor: "#FFFFFF"
+    primaryTextColor: "#2D3142"
+    primaryBorderColor: "#BFC0C0"
+    lineColor: "#4F5D75"
+    fontFamily: "Geist, Inter, Helvetica, Arial, sans-serif"
+---
+flowchart TB
+  accTitle: Current documentary answer and save
+  accDescr: Retrieved passages produce an evidence-only result, a cited answer, or an abstention; valid results are saved only while their sources remain current.
+  Input["Question, locale, passages"] --> Generate["Generate documentary result"]
+  Generate --> Mode{"Result mode?"}
+  Mode -->|"No key, passages"| Evidence["Evidence only"]
+  Mode -->|"No passages or abstention"| Abstain["Insufficient evidence"]
+  Mode -->|"Groq answer"| Validate["Validate JSON and cited IDs"]
+  Validate -->|"Invalid"| Error["Release slot and show error"]
+  Validate -->|"Valid claims"| Save["Check sources and save"]
+  Evidence --> Save
+  Abstain --> General["Optional separate general response"]
+  General --> Save
+  Save -->|"Stale sources"| Error
+  Save -->|"Current sources"| Render["Render result and source passages"]
+  classDef accent fill:#F1E7E4,stroke:#BF4520,color:#2D3142
+  class Save accent
 ```
 
 ## Orchestration
@@ -116,11 +171,13 @@ Long-running parsing or OCR may later move to a durable job and worker, with exp
 - `src/app/api/questions/route.ts`: question request coordinator.
 - `src/app/api/documents/[id]/route.ts`: session-scoped original download.
 - `src/lib/parse-document.ts`: extraction and passage creation.
-- `src/lib/retrieval.ts`: lexical passage ranking and narrow single-document overview selection.
+- `src/lib/retrieval.ts`: lexical passage ranking, grounded Nico/Nicolás search expansion, and narrow single-document overview selection.
+- `src/lib/semantic-embedding.ts`, `src/lib/semantic-search.ts`: pinned local embeddings, versioned passage indexes, and hybrid ranking.
 - `src/lib/query-rewrite.ts`: bounded bilingual search phrases from question and locale only.
 - `src/lib/answer.ts`: optional Groq calls, structured documentary answer validation, and separate general response.
-- `src/lib/storage.ts`: local workspace files, session scope, and expiry on access.
+- `src/lib/storage.ts`: local workspace files and vector indexes, session scope, and expiry on access.
 - `src/lib/i18n.ts`, `src/lib/limits.ts`, `src/lib/types.ts`: copy, limits, and shared types.
+- `DESIGN.md` and `.impeccable/design.json`: current visual tokens and behavior; the repository-level `docs/visual-foundation.md` is optional guidance for later independent projects.
 
 ## Working rules for the next change
 

@@ -14,6 +14,8 @@ The visual direction is a quiet reading and writing workspace. Serif display typ
 - The visible file-selection button opens the existing file input. The input still supplies FormData to the existing upload Server Action; a localized status shows the selected filename and resets after a successful upload.
 - Source citation buttons still select a stored passage; the mobile source region opens when a citation is selected.
 - Groq mode is labeled only when a server key exists. The no-key mode continues to describe retrieved passages as evidence, not an AI answer.
+- The shell is bounded to `100dvh`. The document rail, conversation history, and source region have independent scrolling; the composer stays below the history at ordinary viewport heights. The introductory heading gives way to the conversation after the first question.
+- Stored questions render in append order. The history scrolls to its end only when the newest saved question ID changes. On narrow screens, documents and sources use bounded alternate views; the source view is a side panel at intermediate widths. Closing a panel restores focus to its opener.
 
 ## Boundaries
 

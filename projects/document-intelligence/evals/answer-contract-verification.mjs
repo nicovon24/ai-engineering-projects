@@ -88,6 +88,22 @@ try {
     (await generateAnswer("¿Cuándo fue?", "es", passages)).status === "insufficient_evidence" &&
     JSON.parse(spanish.lastRequest.options.body).messages[0].content.includes("Spanish (es)"));
 
+  mockFetch(providerResponse({ status: "answered", claims: [{ text: "Nico trabajó en Senzary.", passageIds: ["passage-a"] }] }));
+  checked("a nickname search hint cannot establish identity through an unqualified claim",
+    (await generateAnswer("¿Dónde trabajó Nico?", "es", passages, true)).status === "insufficient_evidence");
+  mockFetch(providerResponse({ status: "answered", claims: [{ text: "Si te referís a Juan, Nico trabajó en Senzary.", passageIds: ["passage-a"] }] }));
+  checked("a conditional nickname claim must name the source-backed expansion",
+    (await generateAnswer("¿Dónde trabajó Nico?", "es", passages, true)).status === "insufficient_evidence");
+  mockFetch(providerResponse({ status: "answered", claims: [{ text: "Si te referís a Nicolás, trabajó en Senzary.", passageIds: ["passage-a"] }] }));
+  checked("a conditional nickname claim keeps its cited passage",
+    (await generateAnswer("¿Dónde trabajó Nico?", "es", passages, true)).status === "answered");
+  mockFetch(providerResponse({ status: "answered", claims: [{ text: "Si te referís a Nicolás, Nico trabajó en Senzary.", passageIds: ["passage-a"] }] }));
+  checked("a conditional prefix cannot hide an unsupported nickname assertion",
+    (await generateAnswer("¿Dónde trabajó Nico?", "es", passages, true)).status === "insufficient_evidence");
+  mockFetch(providerResponse({ status: "answered", claims: [{ text: "Si por Nico te referís a Nicolás, trabajó en Senzary.", passageIds: ["passage-a"] }] }));
+  checked("a nickname inside the conditional premise is allowed",
+    (await generateAnswer("¿Dónde trabajó Nico?", "es", passages, true)).status === "answered");
+
   mockFetch(providerResponse({ status: "answered", claims: [{ text: "Invented", passageIds: ["unknown-id"] }] }));
   await expectCode("unknown passage ID is rejected", () => generateAnswer("When was launch?", "en", passages), "provider_invalid_answer");
   mockFetch(providerResponse({ status: "answered", claims: [{ text: "Invented", passageIds: ["passage-a", "unknown-id"] }] }));
