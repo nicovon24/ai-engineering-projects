@@ -2,19 +2,19 @@
 
 An independent workspace for Nicolás Von Muhlinen, a fullstack developer in Córdoba, Argentina, to build practical AI Engineering projects. This repository is separate from my personal portfolio. The portfolio may later link to completed applications and repositories.
 
-The projects are a development plan. Document Intelligence is **In progress** as a local prototype; the other projects are **Planned**. This repository does not claim measured results or deployments.
+The projects are a development plan. Document Intelligence is **In progress** as a local prototype, and Debate and Proposal Review is **Done** for its verified local MVP. This repository does not claim measured results or deployments.
 
 ## Priority projects
 
-The order below is the intended development order. Only the first, fifth, and thirteenth project directories currently exist; the remaining paths are reserved for future independent applications.
+The order below is the intended development order. Only the first, second, and thirteenth project directories currently exist; the remaining paths are reserved for future independent applications.
 
 | # | Project | Purpose | Status | Directory |
 | --- | --- | --- | --- | --- |
 | 1 | [Document Intelligence](projects/document-intelligence/README.md) | Document RAG with verifiable citations and explicit insufficient-evidence handling. | In progress | `projects/document-intelligence/` |
-| 2 | AI Evaluation Lab | Reproducible cases, regression checks, and quality, cost, and latency comparisons, beginning with Document Intelligence. | Planned | `projects/ai-evaluation-lab/` (future) |
-| 3 | Tool Agent from Scratch | An explicit tool-calling loop with useful tools, limits, errors, and traces. | Planned | `projects/tool-agent-from-scratch/` (future) |
-| 4 | Spec Refinery | Turn vague requests into implementable specifications through questions, retrieved documentation, decisions, and human review. | Planned | `projects/spec-refinery/` (future) |
-| 5 | [Debate and Proposal Review](projects/debate-proposal-review/README.md) | Review proposals from competing perspectives, check claim evidence, and support a final human decision. | Planned | `projects/debate-proposal-review/` |
+| 2 | [Debate and Proposal Review](projects/debate-proposal-review/README.md) | Review proposals from competing perspectives, check claim evidence, and support a final human decision. | Done (local MVP) | `projects/debate-proposal-review/` |
+| 3 | AI Evaluation Lab | Reproducible cases, regression checks, and quality, cost, and latency comparisons, beginning with Document Intelligence. | Planned | `projects/ai-evaluation-lab/` (future) |
+| 4 | Tool Agent from Scratch | An explicit tool-calling loop with useful tools, limits, errors, and traces. | Planned | `projects/tool-agent-from-scratch/` (future) |
+| 5 | Spec Refinery | Turn vague requests into implementable specifications through questions, retrieved documentation, decisions, and human review. | Planned | `projects/spec-refinery/` (future) |
 | 6 | Finagent | Read-only financial research with sourced data, traceable calculations, and a useful MCP interface. | Planned | `projects/finagent/` (future) |
 | 7 | Research Orchestrator | Source-based research through bounded stages, a report, and human review. | Planned | `projects/research-orchestrator/` (future) |
 | 8 | Personal Agent with Memory | A limited assistant with tools, searchable conversation history, and user-controlled long-term memory. | Planned | `projects/personal-agent-with-memory/` (future) |
@@ -26,7 +26,7 @@ The order below is the intended development order. Only the first, fifth, and th
 
 ## Current repository scope
 
-`projects/document-intelligence/` contains an independently runnable local Next.js prototype and its project plan. `projects/debate-proposal-review/` and `projects/spreadsheet-dashboard-studio/` contain plans, learning references, and task records only. Other project directories and experiments will be added when work on them begins. Each eventual application should be independently runnable and deployable.
+`projects/document-intelligence/` and `projects/debate-proposal-review/` contain independently runnable local Next.js prototypes and their project plans. Debate and Proposal Review is done for its local MVP; broader model-quality evaluation remains open. `projects/spreadsheet-dashboard-studio/` contains a plan, learning references, and task records only. Other project directories and experiments will be added when work on them begins. Each eventual application should be independently runnable and deployable.
 
 ## Working records
 

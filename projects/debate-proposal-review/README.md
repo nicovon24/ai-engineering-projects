@@ -73,7 +73,7 @@ These repositories are learning references, not specifications or sources of pro
 
 ## Status
 
-Local MVP implemented and verified. Contracts, local persistence, digital intake, Groq transport, staged review, HTTP operations, and the chat-first UI are implemented. Verification and independent review status are recorded in [the task tracker](docs/specs/tasks.md), with [CHECKLOG.md](CHECKLOG.md) as the continuity note. Synthetic-provider tests do not establish model quality; live synthetic checkpoints are reported separately under `evals/`.
+**Done — local MVP.** Contracts, local persistence, digital intake, Groq transport, staged review, HTTP operations, and the chat-first UI are implemented and verified. Verification and independent-review status are recorded in [the task tracker](docs/specs/tasks.md), with [CHECKLOG.md](CHECKLOG.md) as the continuity note. Broader model-quality evaluation and human agreement remain open; synthetic-provider tests do not establish model quality, and live synthetic checkpoints are reported separately under `evals/`.
 
 ## Next steps
 
