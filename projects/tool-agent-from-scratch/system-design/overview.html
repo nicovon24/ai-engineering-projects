@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tool Agent from Scratch — local web flow</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px; background: #f7f3ed; color: #2d2824; font-family: Geist, Arial, sans-serif; }
+    main { width: 100%; max-width: 1280px; margin: 0 auto; min-width: 0; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 1280px; }
+    @media print { .diagram-container { overflow-x: visible; } svg { min-width: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="diagram-container">
+    <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="tool-overview-title tool-overview-desc">
+      <title id="tool-overview-title">Tool Agent from Scratch: local web flow</title>
+      <desc id="tool-overview-desc">A bilingual web workspace sends a question through an HTTP route to a four-decision loop. A deterministic planner proposes decisions; the loop validates tool calls before read-only search and read tools access bundled sample notes. The workspace displays the final answer, source, and compact trace.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0 L9 3.5 L0 7 Z" fill="#62574f"/></marker>
+        <marker id="arrow-accent" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0 L9 3.5 L0 7 Z" fill="#a64d2c"/></marker>
+      </defs>
+      <rect width="1280" height="720" fill="#f7f3ed"/>
+      <text x="48" y="52" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15" letter-spacing="2">TOOL AGENT FROM SCRATCH  /  LOCAL WEB WORKSPACE</text>
+      <text x="48" y="105" fill="#2d2824" font-family="Georgia, serif" font-size="40">One bounded loop, two read-only tools</text>
+      <text x="48" y="139" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="16">The planner proposes; the loop validates, executes and records each decision.</text>
+
+      <!-- Connector routes stay outside non-endpoint boxes. -->
+      <path d="M264 336 H328" fill="none" stroke="#a64d2c" stroke-width="2.5" marker-end="url(#arrow-accent)"/>
+      <path d="M560 308 H584 Q592 308 592 300 V220 Q592 212 600 212 H624" fill="none" stroke="#62574f" stroke-width="2" marker-end="url(#arrow)"/>
+      <path d="M624 248 H608 Q600 248 600 256 V344 Q600 352 592 352 H560" fill="none" stroke="#62574f" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+      <path d="M560 368 H584 Q592 368 592 376 V452 Q592 460 600 460 H624" fill="none" stroke="#62574f" stroke-width="2" marker-end="url(#arrow)"/>
+      <path d="M880 460 H944" fill="none" stroke="#62574f" stroke-width="2" marker-end="url(#arrow)"/>
+      <path d="M1088 408 V264" fill="none" stroke="#62574f" stroke-width="2" marker-end="url(#arrow)"/>
+      <path d="M944 488 H920 Q912 488 912 496 V556 Q912 564 904 564 H452 Q444 564 444 556 V388" fill="none" stroke="#62574f" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+      <path d="M328 360 H304 Q296 360 296 368 V420 Q296 428 288 428 H156 Q148 428 148 420 V388" fill="none" stroke="#62574f" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+
+      <rect x="48" y="284" width="216" height="104" rx="8" fill="#fffdf9" stroke="#62574f" stroke-width="2"/>
+      <text x="68" y="311" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15" letter-spacing="1.2">USER ENTRY</text>
+      <text x="68" y="341" fill="#2d2824" font-family="Geist, Arial, sans-serif" font-size="20" font-weight="600">Bilingual UI</text>
+      <text x="68" y="365" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15">Question · source · trace</text>
+
+      <rect x="328" y="284" width="232" height="104" rx="8" fill="#f3e0d5" stroke="#a64d2c" stroke-width="2"/>
+      <text x="348" y="311" fill="#914024" font-family="Geist, Arial, sans-serif" font-size="15" letter-spacing="1.2">CONTROL POINT</text>
+      <text x="348" y="341" fill="#2d2824" font-family="Geist, Arial, sans-serif" font-size="20" font-weight="600">Bounded loop</text>
+      <text x="348" y="365" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15">At most four decisions</text>
+
+      <rect x="624" y="160" width="256" height="104" rx="8" fill="#fffdf9" stroke="#62574f" stroke-width="2"/>
+      <text x="644" y="187" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15" letter-spacing="1.2">KEYLESS MVP</text>
+      <text x="644" y="217" fill="#2d2824" font-family="Geist, Arial, sans-serif" font-size="20" font-weight="600">Deterministic planner</text>
+      <text x="644" y="241" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15">Tool call or final answer</text>
+
+      <rect x="624" y="408" width="256" height="104" rx="8" fill="#fffdf9" stroke="#62574f" stroke-width="2"/>
+      <text x="644" y="435" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15" letter-spacing="1.2">TRUST BOUNDARY</text>
+      <text x="644" y="465" fill="#2d2824" font-family="Geist, Arial, sans-serif" font-size="20" font-weight="600">Tool registry</text>
+      <text x="644" y="489" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15">Exact names + schemas</text>
+
+      <rect x="944" y="408" width="288" height="104" rx="8" fill="#fffdf9" stroke="#62574f" stroke-width="2"/>
+      <text x="964" y="435" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15" letter-spacing="1.2">READ ONLY</text>
+      <text x="964" y="465" fill="#2d2824" font-family="Geist, Arial, sans-serif" font-size="20" font-weight="600">Search + read tools</text>
+      <text x="964" y="489" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15">Allowlisted note IDs only</text>
+
+      <rect x="944" y="160" width="288" height="104" rx="8" fill="#fffdf9" stroke="#e5dbd1" stroke-width="2"/>
+      <text x="964" y="187" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15" letter-spacing="1.2">LOCAL FIXTURE</text>
+      <text x="964" y="217" fill="#2d2824" font-family="Geist, Arial, sans-serif" font-size="20" font-weight="600">Bundled sample notes</text>
+      <text x="964" y="241" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15">No arbitrary file paths</text>
+
+      <line x1="48" y1="624" x2="1232" y2="624" stroke="#e5dbd1" stroke-width="2"/>
+      <text x="48" y="653" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15">Dashed arrows return decisions, results and the final trace. Invalid calls stop at the loop.</text>
+      <text x="48" y="677" fill="#62574f" font-family="Geist, Arial, sans-serif" font-size="15">The first demo has no model call, web access, memory or write tools.</text>
+    </svg>
+  </div>
+</main>
+</body>
+</html>
