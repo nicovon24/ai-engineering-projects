@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repo Atlas · System design</title>
+  <style>
+    :root { color-scheme:light; --ground:#f7f3ed; --paper:#fffdf9; --rail:#f0eae2; --ink:#292520; --muted:#62564d; --line:#dfd5c9; --rust:#a54d2e; --rust-soft:#f4e2d8; --green:#285e47; --green-soft:#e1eee5; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:48px 24px 80px; background:var(--ground); color:var(--ink); font-family:Arial,Helvetica,sans-serif; line-height:1.5; }
+    main { max-width:1100px; margin:auto; }
+    .eyebrow { color:var(--rust); font:700 11px ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.16em; text-transform:uppercase; }
+    h1,h2 { font-family:Georgia,'Times New Roman',serif; font-weight:500; letter-spacing:-.025em; }
+    h1 { margin:8px 0 10px; font-size:clamp(32px,5vw,52px); }
+    h2 { margin:0 0 8px; font-size:30px; }
+    p { margin:0; }
+    .intro { max-width:720px; color:var(--muted); }
+    section { margin-top:36px; padding:28px; background:var(--paper); border:1px solid var(--line); border-radius:16px; }
+    .caption { max-width:780px; color:var(--muted); font-size:14px; }
+    .diagram-container { width:100%; overflow-x:auto; margin-top:24px; }
+    svg { display:block; width:100%; min-width:960px; }
+    svg .zone { fill:#f7f3ed; stroke:var(--line); stroke-width:1.2; }
+    svg .node { fill:var(--paper); stroke:#9d8c7f; stroke-width:1.3; }
+    svg .node-focus { fill:var(--rust-soft); stroke:var(--rust); stroke-width:1.6; }
+    svg .node-data { fill:var(--green-soft); stroke:var(--green); stroke-width:1.3; }
+    svg .node-name { fill:var(--ink); font:700 13px Arial,Helvetica,sans-serif; }
+    svg .node-note { fill:var(--muted); font:11px ui-monospace,SFMono-Regular,Consolas,monospace; }
+    svg .boundary-label { fill:var(--muted); font:700 10px ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.12em; }
+    svg .wire { fill:none; stroke:var(--muted); stroke-width:1.6; marker-end:url(#arrow); }
+    svg .wire-focus { fill:none; stroke:var(--rust); stroke-width:1.8; marker-end:url(#arrow-focus); }
+    svg .wire-return { fill:none; stroke:var(--muted); stroke-width:1.3; stroke-dasharray:5 4; marker-end:url(#arrow); }
+    svg .wire-label { fill:var(--muted); font:11px ui-monospace,SFMono-Regular,Consolas,monospace; }
+    svg .small { fill:var(--muted); font:10px ui-monospace,SFMono-Regular,Consolas,monospace; }
+    svg .lifeline { stroke:#bdaea0; stroke-width:1; stroke-dasharray:4 4; }
+    svg .divider { stroke:var(--line); stroke-width:1; }
+    .footnote { margin-top:16px; color:var(--muted); font-size:13px; }
+    a { color:var(--rust); }
+    @media print { body { padding:0; background:white; } section { break-inside:avoid; border:0; } .diagram-container { overflow-x:visible; } svg { min-width:0; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Repo Atlas · current implementation · 20 Nov 2026</p>
+  <h1>System design</h1>
+  <p class="intro">Three views of the local, single-user repository investigator. The diagrams show implemented components and boundaries, one live question, and the persisted conversation model.</p>
+
+  <section>
+    <p class="eyebrow">01 / Architecture</p>
+    <h2>Local app and external services</h2>
+    <p class="caption">The browser calls a localhost Next.js API. The server pins GitHub reads to a commit, asks Groq for bounded decisions and a structured answer, validates citations, and saves the run in SQLite.</p>
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="architecture-title architecture-desc">
+        <title id="architecture-title">Repo Atlas architecture</title>
+        <desc id="architecture-desc">A browser connects to a local Next.js API and investigation engine. The engine reads GitHub, asks Groq, and stores conversations in local SQLite.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#62564d"/></marker>
+          <marker id="arrow-focus" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#a54d2e"/></marker>
+        </defs>
+        <rect width="960" height="600" fill="#fffdf9"/>
+        <rect class="zone" x="252" y="104" width="408" height="400" rx="12"/>
+        <text class="boundary-label" x="268" y="130">LOCAL SERVER · 127.0.0.1</text>
+        <rect class="zone" x="712" y="104" width="208" height="400" rx="12"/>
+        <text class="boundary-label" x="728" y="130">EXTERNAL APIS</text>
+        <path class="wire" d="M208 288 H280"/>
+        <path class="wire-focus" d="M420 288 H472"/>
+        <path class="wire" d="M350 324 V396"/>
+        <path class="wire" d="M624 272 H676 Q684 272 684 264 V184 Q684 176 692 176 H736"/>
+        <path class="wire" d="M624 304 H676 Q684 304 684 312 V388 Q684 396 692 396 H736"/>
+        <rect class="node" x="48" y="252" width="160" height="72" rx="8"/>
+        <text class="node-name" x="64" y="280">Browser</text><text class="node-note" x="64" y="300">Spanish / English UI</text>
+        <rect class="node" x="280" y="252" width="140" height="72" rx="8"/>
+        <text class="node-name" x="296" y="280">Next.js API</text><text class="node-note" x="296" y="300">/api/ask · history</text>
+        <rect class="node-focus" x="472" y="252" width="152" height="72" rx="8"/>
+        <text class="node-name" x="488" y="280">Investigation</text><text class="node-note" x="488" y="300">bounded loop + checks</text>
+        <rect class="node-data" x="280" y="396" width="140" height="72" rx="8"/>
+        <text class="node-name" x="296" y="424">SQLite</text><text class="node-note" x="296" y="444">.local-data/agent.sqlite</text>
+        <rect class="node" x="736" y="144" width="160" height="72" rx="8"/>
+        <text class="node-name" x="752" y="172">GitHub API</text><text class="node-note" x="752" y="192">SHA-pinned source</text>
+        <rect class="node" x="736" y="360" width="160" height="72" rx="8"/>
+        <text class="node-name" x="752" y="388">Groq API</text><text class="node-note" x="752" y="408">JSON decisions / answer</text>
+        <line class="divider" x1="48" y1="544" x2="912" y2="544"/>
+        <text class="small" x="48" y="568">Server-only credentials · public GitHub repositories · no source-code execution</text>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">02 / Sequence</p>
+    <h2>One live question</h2>
+    <p class="caption">Every question resolves the current default commit. The planner may request up to eight validated reads. The final answer is accepted only when its citation IDs match evidence from the pinned commit.</p>
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="sequence-title sequence-desc">
+        <title id="sequence-title">Live investigation sequence</title>
+        <desc id="sequence-desc">The browser asks the server, which resolves a GitHub commit, loads prior history, gets a structured Groq decision, reads pinned source, validates the answer, saves it, and responds.</desc>
+        <defs>
+          <marker id="sequence-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#62564d"/></marker>
+          <marker id="sequence-focus" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#a54d2e"/></marker>
+        </defs>
+        <rect width="960" height="600" fill="#fffdf9"/>
+        <line class="lifeline" x1="100" y1="84" x2="100" y2="520"/><line class="lifeline" x1="280" y1="84" x2="280" y2="520"/><line class="lifeline" x1="460" y1="84" x2="460" y2="520"/><line class="lifeline" x1="640" y1="84" x2="640" y2="520"/><line class="lifeline" x1="820" y1="84" x2="820" y2="520"/>
+        <rect class="node" x="36" y="28" width="128" height="56" rx="8"/><text class="node-name" x="100" y="61" text-anchor="middle">Browser</text>
+        <rect class="node-focus" x="216" y="28" width="128" height="56" rx="8"/><text class="node-name" x="280" y="61" text-anchor="middle">Local server</text>
+        <rect class="node" x="396" y="28" width="128" height="56" rx="8"/><text class="node-name" x="460" y="61" text-anchor="middle">GitHub</text>
+        <rect class="node" x="576" y="28" width="128" height="56" rx="8"/><text class="node-name" x="640" y="61" text-anchor="middle">Groq</text>
+        <rect class="node-data" x="756" y="28" width="128" height="56" rx="8"/><text class="node-name" x="820" y="61" text-anchor="middle">SQLite</text>
+        <g fill="none" stroke="#62564d" stroke-width="1.4" marker-end="url(#sequence-arrow)">
+          <path d="M100 128 H280"/><path d="M280 160 H460"/><path d="M460 192 H280" stroke-dasharray="5 4"/>
+          <path d="M280 224 H820"/><path d="M280 256 H640"/><path d="M640 288 H280" stroke-dasharray="5 4"/>
+          <path d="M280 320 H460"/><path d="M460 352 H280" stroke-dasharray="5 4"/>
+          <path d="M280 384 H640"/><path d="M640 416 H280" stroke-dasharray="5 4"/>
+          <path d="M280 448 H820"/>
+        </g>
+        <path d="M280 480 H100" fill="none" stroke="#a54d2e" stroke-width="1.8" marker-end="url(#sequence-focus)"/>
+        <g class="wire-label">
+          <text x="112" y="118">POST /api/ask</text><text x="292" y="150">resolve default SHA</text><text x="312" y="182">commit SHA</text>
+          <text x="292" y="214">load prior findings</text><text x="292" y="246">choose JSON action</text><text x="410" y="278">validated action</text>
+          <text x="292" y="310">read at SHA</text><text x="310" y="342">verified lines</text><text x="292" y="374">request structured answer</text>
+          <text x="404" y="406">answer + citation IDs</text><text x="292" y="438">save run + evidence</text><text x="112" y="470">answer, citations, trace</text>
+        </g>
+        <line class="divider" x1="48" y1="528" x2="912" y2="528"/>
+        <text class="small" x="48" y="552">Decision/read can repeat within the eight-operation budget. Source and prior text are untrusted data.</text>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">03 / Data model</p>
+    <h2>Conversation history in SQLite</h2>
+    <p class="caption">A repository owns conversations. Each run is tied to one SHA and owns its messages, trace, inspected paths, evidence excerpts, and citations. Reused evidence is copied into the new run so deletion of its original conversation does not break citations.</p>
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="data-title data-desc">
+        <title id="data-title">Repo Atlas local data model</title>
+        <desc id="data-desc">Repository to conversation to run relationships, with each run owning messages, inspected paths, evidence, and citations that reference evidence.</desc>
+        <defs><marker id="data-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#62564d"/></marker></defs>
+        <rect width="960" height="600" fill="#fffdf9"/>
+        <g fill="none" stroke="#62564d" stroke-width="1.4" marker-end="url(#data-arrow)">
+          <path d="M208 288 H264"/><path d="M424 288 H464"/><path d="M624 288 H704"/>
+          <path d="M544 248 V184"/><path d="M544 328 V416"/><path d="M784 328 V416"/>
+          <path d="M624 312 H656 Q664 312 664 320 V444 Q664 452 672 452 H704"/>
+        </g>
+        <g class="small">
+          <text x="214" y="280">1:N</text><text x="428" y="280">1:N</text><text x="650" y="280">1:N</text>
+          <text x="552" y="216">1:N</text><text x="552" y="384">1:2</text><text x="792" y="384">1:N</text>
+        </g>
+        <rect class="node" x="48" y="248" width="160" height="80" rx="8"/><text class="node-name" x="64" y="276">Repository</text><text class="node-note" x="64" y="298">repo_key · owner/repo</text>
+        <rect class="node" x="264" y="248" width="160" height="80" rx="8"/><text class="node-name" x="280" y="276">Conversation</text><text class="node-note" x="280" y="298">id · repo_key · title</text>
+        <rect class="node-focus" x="464" y="248" width="160" height="80" rx="8"/><text class="node-name" x="480" y="276">Run</text><text class="node-note" x="480" y="298">sha · status · trace</text>
+        <rect class="node" x="464" y="104" width="160" height="80" rx="8"/><text class="node-name" x="480" y="132">Inspected path</text><text class="node-note" x="480" y="154">path · outcome</text>
+        <rect class="node" x="464" y="416" width="160" height="80" rx="8"/><text class="node-name" x="480" y="444">Message</text><text class="node-note" x="480" y="466">role · sequence · text</text>
+        <rect class="node-data" x="704" y="248" width="160" height="80" rx="8"/><text class="node-name" x="720" y="276">Evidence</text><text class="node-note" x="720" y="298">sha · path · lines</text>
+        <rect class="node" x="704" y="416" width="160" height="80" rx="8"/><text class="node-name" x="720" y="444">Citation</text><text class="node-note" x="720" y="466">evidence_id · URL</text>
+        <line class="divider" x1="48" y1="536" x2="912" y2="536"/>
+        <text class="small" x="48" y="560">Citations belong to a run and reference an evidence row. A run stores one user and one assistant message.</text>
+      </svg>
+    </div>
+  </section>
+  <p class="footnote">Source of truth: <a href="../src/lib/repository/index.ts">investigation loop</a>, <a href="../src/lib/repository/planner.ts">Groq planner</a>, <a href="../src/lib/repository/source.ts">GitHub adapter</a>, and <a href="../src/lib/history/index.ts">history schema</a>. These diagrams document the local MVP; they do not imply a deployed or multi-user service.</p>
+</main>
+</body>
+</html>

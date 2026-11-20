@@ -2,6 +2,8 @@
 
 Local, bilingual investigation of public GitHub repositories with commit-linked evidence and conversation history. The [OpenSpec change](openspec/changes/repository-investigation-mvp/proposal.md) defines the local MVP.
 
+The [system design diagrams](docs/system-design.html) show the implemented architecture, live-question sequence, and local SQLite data model in the application's visual style. Open the HTML file in a browser; each diagram scrolls independently on narrow screens.
+
 ## Run locally
 
 Requires Node.js 24. From this directory:

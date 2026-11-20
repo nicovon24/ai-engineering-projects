@@ -11,6 +11,7 @@
 
 ## Recent changes
 
+- 2026-11-20: Added a standalone system design page with architecture, live-question sequence, and SQLite data-model diagrams derived from the current source. Applied Repo Atlas colors and typography. The SVG structure check passed; browser inspection covered all three diagrams at desktop width and independent horizontal scrolling at 390 px.
 - 2026-11-20: Diagnosed repeated Groq HTTP 400 `tool_use_failed` after README reads. A direct request to configured `openai/gpt-oss-120b` accepted strict JSON schema decisions; the planner now uses that protocol for bounded operations and still validates decisions server-side. Complete live `nicovon24/fintrack` questions at `8d2592e9b1` returned English and Spanish answers with 11 and 12 verified citations. Browser inspection confirmed answer, source links, and trace. Verified 27 focused tests, typecheck, and lint.
 - 2026-11-20: Added optional authenticated public GitHub reads. Browser verification confirmed the token resolves `nicovon24/hermes` at `e1e657a023` and reads 92 README lines. The live answer is still blocked by Groq HTTP 429 after fixing oversized planner context and accepting Groq's bare declared function names. Verified 26 focused tests, typecheck, and lint.
 - 2026-11-20: Added optional server-side `GITHUB_TOKEN`/`GH_TOKEN` authentication for public GitHub API reads after the live flow hit the shared unauthenticated rate limit. The local GitHub CLI is present but not authenticated, so a live authenticated answer still requires a token in ignored `.env.local`.
