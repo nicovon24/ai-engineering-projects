@@ -11,6 +11,7 @@
 
 ## Recent changes
 
+- 2026-11-20: Added optional authenticated public GitHub reads. Browser verification confirmed the token resolves `nicovon24/hermes` at `e1e657a023` and reads 92 README lines. The live answer is still blocked by Groq HTTP 429 after fixing oversized planner context and accepting Groq's bare declared function names. Verified 26 focused tests, typecheck, and lint.
 - 2026-11-20: Added optional server-side `GITHUB_TOKEN`/`GH_TOKEN` authentication for public GitHub API reads after the live flow hit the shared unauthenticated rate limit. The local GitHub CLI is present but not authenticated, so a live authenticated answer still requires a token in ignored `.env.local`.
 
 - 2026-11-20: Independent read-only review compared both capability specs and the design with the source, routes, persistence, UI, and tests. Three findings on refresh history, cross-conversation historical labeling, and text-search coverage were fixed; a follow-up regression in the status label was fixed and re-reviewed. No findings remain in that focused review. Requested reviewer model/effort: `gpt-6-sol` high; runtime-confirmed model/effort: unconfirmed.

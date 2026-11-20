@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000`. The server binds to localhost. Use **Load keyless demo** to try the same investigation, citation, and history flow with a deterministic fixture. Open-ended questions about live public repositories use Groq. Configure `GROQ_API_KEY` in an ignored `.env.local` file; `GROQ_MODEL` defaults to `openai/gpt-oss-20b`, and `GROQ_BASE_URL` can override the OpenAI-compatible API endpoint. See `.env.example`. A live Groq tool-selection request succeeded; the first complete answer attempt was blocked by GitHub's unauthenticated API rate limit.
+Open `http://127.0.0.1:3000`. The server binds to localhost. Use **Load keyless demo** to try the same investigation, citation, and history flow with a deterministic fixture. Open-ended questions about live public repositories use Groq. Configure `GROQ_API_KEY` in an ignored `.env.local` file; `GROQ_MODEL` defaults to `openai/gpt-oss-20b`, and `GROQ_BASE_URL` can override the OpenAI-compatible API endpoint. See `.env.example`. A live GitHub request with `GITHUB_TOKEN` resolved `nicovon24/hermes` at commit `e1e657a023` and read all 92 README lines. The completed answer is still unverified: repeated attempts were stopped by Groq's HTTP 429 usage limit.
 
 Live GitHub reads use the unauthenticated public API by default and can hit its shared rate limit. To raise the limit, add a fine-grained `GITHUB_TOKEN` with public repository read access to this local `.env.local` and restart the server. The token is sent only to `api.github.com` from the server and is never sent to the model or browser. `GH_TOKEN` is also accepted.
 
