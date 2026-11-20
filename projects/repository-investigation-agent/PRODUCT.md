@@ -17,4 +17,4 @@ Let a local user investigate a public GitHub repository, see the files and commi
 
 ## Limits
 
-The first version is local and single-user. It accepts public GitHub repositories only, has fixed read budgets, and does not clone or execute repository code. A fixture demonstration works without model credentials; open-ended live answers require an optional provider key. It does not sync data across devices or maintain a separate user-profile memory.
+The first version is local and single-user. It accepts public GitHub repositories only, has fixed read budgets, and does not clone or execute repository code. A fixture demonstration works without model credentials; open-ended live answers use Groq when `GROQ_API_KEY` is configured. It does not sync data across devices or maintain a separate user-profile memory.

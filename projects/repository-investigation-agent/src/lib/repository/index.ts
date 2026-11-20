@@ -1,9 +1,9 @@
-import { FixturePlanner, OpenAIPlanner } from './planner';
+import { FixturePlanner, GroqPlanner } from './planner';
 import { FixtureSourceAdapter, GitHubSourceAdapter, parseRepositoryUrl, validatePath } from './source';
 import { InvestigationError, type Evidence, type InvestigationInput, type InvestigationResult, type PlannerContext, type Repository, type SourceAdapter, type ToolCall, type ToolOutcome, type TraceEntry, type TreeEntry } from './types';
 
 export * from './types';
-export { FixturePlanner, OpenAIPlanner } from './planner';
+export { FixturePlanner, GroqPlanner } from './planner';
 export { FixtureSourceAdapter, GitHubSourceAdapter, parseRepositoryUrl, validatePath } from './source';
 
 export const DEMO_REPOSITORY_URL = 'https://github.com/fixture/repository-investigation-demo';
@@ -13,8 +13,8 @@ function sourceLink(repository: Repository, path: string, startLine: number, end
   return `${repository.url}/blob/${repository.sha}/${path.split('/').map(encodeURIComponent).join('/')}#L${startLine}${endLine === startLine ? '' : `-L${endLine}`}`;
 }
 function description(locale: 'es' | 'en', code: string): string {
-  const es: Record<string,string> = { insufficient_evidence: 'La evidencia inspeccionada no alcanza para responder esa pregunta.', provider_error: 'No hay un proveedor de respuestas disponible. Configure OPENAI_API_KEY para investigar este repositorio.', source_error: 'No se pudo verificar la fuente actual.', private: 'El repositorio es privado y no se puede investigar.', inaccessible: 'El repositorio o la fuente no está disponible públicamente.', rate_limited: 'GitHub limitó el acceso. Intentá de nuevo más tarde.', limit: 'La investigación se detuvo al alcanzar un límite de lectura.', invalid_tool: 'La investigación se detuvo por una operación no permitida.', invalid_arguments: 'La investigación se detuvo por argumentos inválidos.' };
-  const en: Record<string,string> = { insufficient_evidence: 'The inspected evidence is insufficient to answer that question.', provider_error: 'No answer provider is available. Set OPENAI_API_KEY to investigate this repository.', source_error: 'The current source could not be verified.', private: 'This repository is private and cannot be investigated.', inaccessible: 'The repository or source is not publicly accessible.', rate_limited: 'GitHub access is rate limited. Try again later.', limit: 'The investigation stopped at a read limit.', invalid_tool: 'The investigation stopped at an unsupported operation.', invalid_arguments: 'The investigation stopped at invalid arguments.' };
+  const es: Record<string,string> = { insufficient_evidence: 'La evidencia inspeccionada no alcanza para responder esa pregunta.', provider_error: 'Groq no está disponible. Configure GROQ_API_KEY para investigar este repositorio.', source_error: 'No se pudo verificar la fuente actual.', private: 'El repositorio es privado y no se puede investigar.', inaccessible: 'El repositorio o la fuente no está disponible públicamente.', rate_limited: 'GitHub limitó el acceso. Intentá de nuevo más tarde.', limit: 'La investigación se detuvo al alcanzar un límite de lectura.', invalid_tool: 'La investigación se detuvo por una operación no permitida.', invalid_arguments: 'La investigación se detuvo por argumentos inválidos.' };
+  const en: Record<string,string> = { insufficient_evidence: 'The inspected evidence is insufficient to answer that question.', provider_error: 'Groq is unavailable. Set GROQ_API_KEY to investigate this repository.', source_error: 'The current source could not be verified.', private: 'This repository is private and cannot be investigated.', inaccessible: 'The repository or source is not publicly accessible.', rate_limited: 'GitHub access is rate limited. Try again later.', limit: 'The investigation stopped at a read limit.', invalid_tool: 'The investigation stopped at an unsupported operation.', invalid_arguments: 'The investigation stopped at invalid arguments.' };
   return (locale === 'es' ? es : en)[code] ?? (locale === 'es' ? 'La investigación no pudo completarse.' : 'The investigation could not be completed.');
 }
 function validateTool(raw: unknown): ToolCall | { name: 'finish' } {
@@ -57,8 +57,8 @@ export async function investigate(input: InvestigationInput): Promise<Investigat
   if (!/^[a-f0-9]{40}$/i.test(repository.sha)) return stop('source_error', 'Source adapter returned an invalid SHA.');
   changed = prior.some(item => item.sha !== repository.sha);
   trace.push({ step: 1, tool: 'resolve', status: 'ok', detail: 'Default commit resolved.', sha: repository.sha });
-  if (!input.planner && !fixture && !process.env.OPENAI_API_KEY) return stop('provider_error', 'No answer provider configured.');
-  const planner = input.planner ?? (fixture ? new FixturePlanner() : new OpenAIPlanner(process.env.OPENAI_API_KEY!));
+  if (!input.planner && !fixture && !process.env.GROQ_API_KEY) return stop('provider_error', 'No answer provider configured.');
+  const planner = input.planner ?? (fixture ? new FixturePlanner() : new GroqPlanner(process.env.GROQ_API_KEY!));
   let tree: TreeEntry[] | undefined;
   const cached = new Map<string, string>();
   const evidence: Evidence[] = [];

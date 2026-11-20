@@ -16,8 +16,13 @@ export class FixturePlanner implements Planner {
   }
 }
 
-export class OpenAIPlanner implements Planner {
-  constructor(private readonly key: string, private readonly model: string = process.env.OPENAI_MODEL || 'gpt-5-mini', private readonly request: typeof fetch = fetch) {}
+export class GroqPlanner implements Planner {
+  constructor(
+    private readonly key: string,
+    private readonly model: string = process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
+    private readonly baseUrl: string = process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1',
+    private readonly request: typeof fetch = fetch,
+  ) {}
 
   private async complete(context: PlannerContext, task: 'next' | 'answer'): Promise<unknown> {
     const instructions = task === 'next'
@@ -26,12 +31,29 @@ export class OpenAIPlanner implements Planner {
     const data = { repository: context.repository, question: context.question, locale: context.locale, prior: context.prior.map(p => ({ conversationId: p.conversationId, sha: p.sha, question: p.question, answer: p.answer, inspectedPaths: [...new Set([...(p.inspectedPaths ?? []).map(item => item.path), ...p.evidence.map(e => e.path)])].slice(0, 12), evidence: p.evidence.slice(0, 12).map(e => ({ path: e.path, startLine: e.startLine, endLine: e.endLine, excerpt: e.excerpt })) })), outcomes: context.outcomes, evidence: context.evidence.map(e => ({ id: e.id, path: e.path, startLine: e.startLine, endLine: e.endLine, excerpt: e.excerpt })), remainingCalls: context.remainingCalls };
     let response: Response;
     try {
-      response = await this.request('https://api.openai.com/v1/responses', { method: 'POST', headers: { Authorization: `Bearer ${this.key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: this.model, instructions, input: JSON.stringify(data), max_output_tokens: 1200 }), cache: 'no-store' });
+      response = await this.request(`${this.baseUrl.replace(/\/+$/, '')}/chat/completions`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${this.key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.model,
+          temperature: 0,
+          ...(this.model === 'openai/gpt-oss-20b' || this.model === 'openai/gpt-oss-120b' ? { reasoning_effort: 'low' } : {}),
+          max_completion_tokens: 1200,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: instructions },
+            { role: 'user', content: JSON.stringify(data) },
+          ],
+        }),
+        signal: AbortSignal.timeout(25_000),
+        cache: 'no-store',
+      });
     } catch { throw new InvestigationError('provider_error', 'The answer provider could not be reached.'); }
     if (!response.ok) throw new InvestigationError('provider_error', `The answer provider returned HTTP ${response.status}.`);
-    let payload: { output_text?: string; output?: { content?: { text?: string }[] }[] };
+    let payload: { choices?: { message?: { content?: unknown } }[] };
     try { payload = await response.json(); } catch { throw new InvestigationError('provider_error', 'The answer provider returned invalid data.'); }
-    const output = payload.output_text ?? payload.output?.flatMap(item => item.content ?? []).map(item => item.text ?? '').join('') ?? '';
+    const output = payload.choices?.[0]?.message?.content;
+    if (typeof output !== 'string') throw new InvestigationError('provider_error', 'The answer provider returned invalid data.');
     try { return JSON.parse(output); } catch { throw new InvestigationError('provider_error', 'The answer provider returned invalid JSON.'); }
   }
 

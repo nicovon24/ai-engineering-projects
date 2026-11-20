@@ -33,6 +33,7 @@
 - [x] 5.1 Run the project's build, type and lint checks plus the focused behavior tests; verify all pass and review the diff for unrelated files or unsupported completion claims.
 - [x] 5.2 Exercise the end-to-end local flow with a public repository at one commit, a repeated question, and a simulated new commit; verify the new answer rechecks source while historical answers retain their original citations.
 - [x] 5.3 Compare implemented behavior with both capability specs, record any gaps and observed results in the project tracker/CHECKLOG, and obtain an independent review before calling the MVP complete.
+- [x] 5.4 Configure the live answer planner with the workspace's Groq API pattern, keep its key server-side, and confirm the keyless fixture remains available.
 
 ## Workflow follow-up
 

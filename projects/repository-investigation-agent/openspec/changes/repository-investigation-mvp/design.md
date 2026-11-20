@@ -9,7 +9,7 @@ This is a new independent project with no application or existing capability spe
 **Goals:**
 - Keep repository evidence tied to immutable commits while making conversations easy to resume and search.
 - Make tool choice, bounds, and citation validation visible and testable.
-- Run locally as a single-user application with a keyless fixture path and an optional provider-backed path for open-ended questions.
+- Run locally as a single-user application with a keyless fixture path and a Groq-backed path for open-ended questions. Read `GROQ_API_KEY`, `GROQ_MODEL`, and optional `GROQ_BASE_URL` from the server environment.
 
 **Non-Goals:**
 - Curated user-profile memory, autonomous background refresh, cross-device sync, private-repository access, git writes, or executing repository code.
