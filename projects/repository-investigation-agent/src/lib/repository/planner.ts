@@ -82,7 +82,7 @@ export class GroqPlanner implements Planner {
           ...(this.model === 'openai/gpt-oss-20b' || this.model === 'openai/gpt-oss-120b' ? { reasoning_effort: 'low' } : {}),
           max_completion_tokens: 1200,
           ...(task === 'next'
-            ? { tools: GROQ_REPOSITORY_TOOLS, tool_choice: 'required' }
+            ? { tools: GROQ_REPOSITORY_TOOLS, tool_choice: 'required', parallel_tool_calls: false }
             : { tool_choice: 'none', response_format: { type: 'json_schema', json_schema: { ...answerSchema, strict: true } } }),
           messages: [
             { role: 'system', content: instructions },

@@ -140,9 +140,9 @@ test('malicious source text cannot authorize a tool or citation', async () => {
 });
 
 test('Groq planner receives the selected locale and treats repository text as data', async () => {
-  const requests: Array<{ messages: { role: string; content: string }[]; tools?: { function: { name: string } }[]; tool_choice?: string }> = [];
+  const requests: Array<{ messages: { role: string; content: string }[]; tools?: { function: { name: string } }[]; tool_choice?: string; parallel_tool_calls?: boolean }> = [];
   const mock = async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const body = JSON.parse(String(init?.body)) as { messages: { role: string; content: string }[]; tools?: { function: { name: string } }[]; tool_choice?: string };
+    const body = JSON.parse(String(init?.body)) as { messages: { role: string; content: string }[]; tools?: { function: { name: string } }[]; tool_choice?: string; parallel_tool_calls?: boolean };
     requests.push(body);
     if (requests.length === 1) return Response.json({ choices: [{ message: { tool_calls: [{ function: { name: 'read_file', arguments: JSON.stringify({ path: 'README.md' }) } }] } }] });
     const output = { status: 'answered', answer: 'The README describes the example.', citationIds: ['e1'] };
@@ -166,6 +166,7 @@ test('Groq planner receives the selected locale and treats repository text as da
     assert.match(request.messages[0].content, /untrusted data/);
   }
   assert.equal(requests[0].tool_choice, 'required');
+  assert.equal(requests[0].parallel_tool_calls, false);
   assert.ok(requests[0].tools?.some(tool => tool.function.name === 'repo_browser.read_file'));
   assert.equal(requests[1].tool_choice, 'none');
 });
