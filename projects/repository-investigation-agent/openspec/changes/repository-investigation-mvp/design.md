@@ -10,7 +10,7 @@ This is a new independent project with no application or existing capability spe
 - Keep repository evidence tied to immutable commits while making conversations easy to resume and search.
 - Make tool choice, bounds, and citation validation visible and testable.
 - Run locally as a single-user application with a keyless fixture path and a Groq-backed path for open-ended questions. Read `GROQ_API_KEY`, `GROQ_MODEL`, and optional `GROQ_BASE_URL` from the server environment.
-- Use declared Groq function calls for bounded repository actions, then validate every function name and argument on the server before source access. Require strict structured output for final answers.
+- Use strict JSON schema decisions for bounded repository actions, then validate every action and argument on the server before source access. Require strict structured output for final answers. This avoids Groq GPT-OSS `tool_use_failed` errors observed with required function calling.
 
 **Non-Goals:**
 - Curated user-profile memory, autonomous background refresh, cross-device sync, private-repository access, git writes, or executing repository code.
