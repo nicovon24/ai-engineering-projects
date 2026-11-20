@@ -181,6 +181,22 @@ test('Groq planner accepts bare and namespaced declared function names', async (
   }
 });
 
+test('Groq HTTP 400 errors preserve only safe provider diagnostic fields', async () => {
+  const context: PlannerContext = {
+    repository: { owner: 'owner', repo: 'repo', key: 'owner/repo', url: 'https://github.com/owner/repo', sha: 'a'.repeat(40) },
+    question: 'What is this?', locale: 'en', prior: [], outcomes: [], evidence: [], remainingCalls: 8,
+  };
+  const mock = (async () => Response.json({ error: { message: 'sensitive provider detail', code: 'context_length_exceeded', type: 'invalid_request_error', param: 'messages' } }, { status: 400 })) as typeof fetch;
+  const planner = new GroqPlanner('test-key', 'test-model', 'https://groq.test/v1/', mock);
+  await assert.rejects(planner.next(context), (error: unknown) => {
+    assert.ok(error instanceof InvestigationError);
+    assert.equal(error.code, 'provider_invalid_request');
+    assert.match(error.message, /context_length_exceeded, invalid_request_error, messages/);
+    assert.doesNotMatch(error.message, /sensitive provider detail/);
+    return true;
+  });
+});
+
 test('Groq planner bounds historical context and avoids duplicating evidence in outcomes', async () => {
   let userContent = '';
   const mock = async (_url: RequestInfo | URL, init?: RequestInit): Promise<Response> => {

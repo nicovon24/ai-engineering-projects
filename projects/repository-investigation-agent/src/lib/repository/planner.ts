@@ -96,8 +96,14 @@ export class GroqPlanner implements Planner {
     if (response.status === 401 || response.status === 403) throw new InvestigationError('provider_authentication', `Groq rejected the configured credentials (HTTP ${response.status}).`);
     if (response.status === 429) throw new InvestigationError('provider_rate_limited', 'Groq rate limited the request.');
     if (response.status === 400) {
-      await response.body?.cancel().catch(() => undefined);
-      throw new InvestigationError('provider_invalid_request', 'Groq rejected the request format (HTTP 400).');
+      let details = '';
+      try {
+        const payload = await response.json() as { error?: { code?: unknown; type?: unknown; param?: unknown } };
+        const error = payload.error;
+        const fields = [error?.code, error?.type, error?.param].filter((value): value is string => typeof value === 'string' && /^[a-zA-Z0-9_.-]{1,80}$/.test(value));
+        if (fields.length) details = ` (${fields.join(', ')})`;
+      } catch { await response.body?.cancel().catch(() => undefined); }
+      throw new InvestigationError('provider_invalid_request', `Groq rejected the request format (HTTP 400)${details}.`);
     }
     if (!response.ok) throw new InvestigationError('provider_error', `Groq returned HTTP ${response.status}.`);
     let payload: { choices?: { message?: { content?: unknown; tool_calls?: { function?: { name?: unknown; arguments?: unknown } }[] } }[] };
