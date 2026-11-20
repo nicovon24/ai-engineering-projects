@@ -1,6 +1,6 @@
 # Research Orchestrator product outline
 
-**Status: In progress.** The current project is being built; the OpenSpec change describes the intended MVP. Only verified behavior is marked implemented in the task tracker.
+**Status: Local MVP verified.** The task tracker records the completed implementation and checks. This is a local single-user prototype.
 
 ## Purpose
 
@@ -17,4 +17,4 @@ Turn a question and automatically discovered public sources into a source-linked
 
 ## Limits
 
-The first version is local and single-user. It does not crawl links, publish reports, or support private sources. A fixed demonstration works without credentials; live search needs `BRAVE_SEARCH_API_KEY` and synthesis needs `GROQ_API_KEY`.
+The first version is local and single-user. It does not crawl links itself, publish reports, or support private sources. A fixed demonstration works without credentials; live discovery and synthesis need only `GROQ_API_KEY`. Groq's browser-search tool may internally visit multiple pages, which this app cannot count.

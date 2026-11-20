@@ -18,7 +18,7 @@ Use an independent Next.js App Router application with server-side routes and a 
 
 ### Bounded search and public URL retrieval boundary
 
-Search the question with Brave Web Search using `BRAVE_SEARCH_API_KEY`, one query and at most five results. Search metadata is discovery, never evidence. Deduplicate results and accept only canonical HTTPS URLs with DNS names. Reject credentials, IP literals, loopback/private/reserved DNS answers, duplicates, and redirects. Pin the public DNS address for the outgoing TLS request and enforce a short timeout, supported MIME type, 128 KiB per response, and 5 sources. Strip scripts/styles and HTML markup into bounded plain text. This deliberately excludes some legitimate sites that require redirects or client-side rendering; the user sees a source-specific failure rather than a fabricated excerpt. Do not follow page links.
+Ask Groq's built-in `browser_search` tool for source URLs in one provider request using `GROQ_API_KEY`, a short timeout, and a bounded completion. Require evidence that the tool ran; read URLs from its `search_results` metadata rather than model prose, and retain at most five. Groq may internally browse multiple pages, which the app cannot count or constrain. Its response is discovery, never evidence. Deduplicate results and accept only canonical HTTPS URLs with DNS names. Reject credentials, IP literals, loopback/private/reserved DNS answers, duplicates, and redirects. Pin the public DNS address for the outgoing TLS request and enforce a short timeout, supported MIME type, 1 MiB per response, and 5 sources. Strip scripts/styles and HTML markup into bounded plain text. This deliberately excludes some legitimate sites that require redirects or client-side rendering; the user sees a source-specific failure rather than a fabricated excerpt. Do not follow page links itself.
 
 ### Fixed orchestration
 
@@ -30,7 +30,7 @@ Store run metadata, source snapshots, stage outcomes, report draft, and review a
 
 ### Demo and provider
 
-The keyless demo uses two fixed, labeled source snapshots and a deterministic report; it passes through the same persistence and review views. Live search uses `BRAVE_SEARCH_API_KEY`; synthesis uses `GROQ_API_KEY`, optional `GROQ_MODEL`, and strict JSON-schema chat completion. API keys stay in ignored local environment configuration and are never stored in the database.
+The keyless demo uses two fixed, labeled source snapshots and a deterministic report; it passes through the same persistence and review views. Live discovery and synthesis use `GROQ_API_KEY`, optional `GROQ_MODEL`, and strict JSON-schema synthesis after independent source retrieval. API keys stay in ignored local environment configuration and are never stored in the database.
 
 ## Risks / Trade-offs
 

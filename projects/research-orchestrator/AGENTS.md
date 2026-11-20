@@ -1,6 +1,6 @@
 # Research Orchestrator agent guide
 
-Follow the repository root `AGENTS.md`. This project owns its application, local data, and OpenSpec records. The active change is `openspec/changes/research-orchestrator-mvp/`; its task checklist is the implementation plan, while `docs/specs/tasks.md` summarizes status and `CHECKLOG.md` is a manually checked handoff.
+Follow the repository root `AGENTS.md`. This project owns its application, local data, and OpenSpec records. The completed MVP change is archived at `openspec/changes/archive/2026-11-20-research-orchestrator-mvp/`; its capability specs are in `openspec/specs/`, while `docs/specs/tasks.md` summarizes status and `CHECKLOG.md` is a manually checked handoff.
 
 ## Boundaries
 

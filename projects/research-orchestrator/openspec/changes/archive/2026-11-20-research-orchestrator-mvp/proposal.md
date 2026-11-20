@@ -26,4 +26,4 @@ None.
 
 ## Impact
 
-Creates `projects/research-orchestrator/` with its own Next.js application, OpenSpec root, project tracker, local ignored data store, and run instructions. It makes bounded requests to Brave Search, validated public source hosts, and the configured Groq endpoint. It does not deploy, crawl links, execute source code, or share data with other projects.
+Creates `projects/research-orchestrator/` with its own Next.js application, OpenSpec root, project tracker, local ignored data store, and run instructions. It makes one Groq browser-search request, then retrieves at most five validated public source URLs for independent snapshots and Groq synthesis. It does not deploy, crawl links itself, execute source code, or share data with other projects.

@@ -7,7 +7,7 @@ Source intake makes every research input explicit, bounded, and inspectable so a
 ## ADDED Requirements
 
 ### Requirement: Automatic bounded source discovery
-The system SHALL accept a research question and automatically search the public web with one bounded query for at most five distinct public HTTPS source URLs. Search snippets SHALL NOT count as evidence.
+The system SHALL accept a research question and request Groq browser search once to discover at most five distinct public HTTPS source URLs. The system SHALL verify that the browser-search tool ran. Provider search text and snippets SHALL NOT count as evidence.
 
 #### Scenario: Search results
 - **WHEN** the user submits a question and search returns public HTTPS results
