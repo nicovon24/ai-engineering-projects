@@ -46,11 +46,11 @@ async function bodyWithin(response: Response, maxBytes: number): Promise<string>
 
 export class GitHubSourceAdapter implements SourceAdapter {
   readonly mode = 'provider' as const;
-  constructor(private readonly request: typeof fetch = fetch) {}
+  constructor(private readonly request: typeof fetch = fetch, private readonly token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN) {}
 
   private async get(path: string, maxBytes: number): Promise<unknown> {
     let response: Response;
-    try { response = await this.request(`https://api.github.com${path}`, { headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }, cache: 'no-store' }); }
+    try { response = await this.request(`https://api.github.com${path}`, { headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}) }, cache: 'no-store' }); }
     catch { throw new InvestigationError('source_error', 'GitHub could not be reached.'); }
     if (response.status === 403 || response.status === 429) throw new InvestigationError('rate_limited', 'GitHub access is rate limited or forbidden.');
     if (response.status === 404) throw new InvestigationError('inaccessible', 'Repository or source is inaccessible.');

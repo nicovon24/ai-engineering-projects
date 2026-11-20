@@ -189,6 +189,21 @@ test('GitHub adapter pins tree and content requests after resolving SHA', async 
   assert.ok(!requests.slice(2).some(url => url.includes('main')));
 });
 
+test('GitHub adapter sends an optional token only to the GitHub API', async () => {
+  let authorization: string | null = null;
+  let requestedUrl = '';
+  const mock = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    requestedUrl = String(input);
+    authorization = new Headers(init?.headers).get('authorization');
+    if (requestedUrl.endsWith('/commits/main')) return Response.json({ sha: 'b'.repeat(40) });
+    return Response.json({ private: false, default_branch: 'main' });
+  };
+  const adapter = new GitHubSourceAdapter(mock as typeof fetch, 'test-token');
+  await adapter.resolve('owner', 'repo');
+  assert.equal(requestedUrl, 'https://api.github.com/repos/owner/repo/commits/main');
+  assert.equal(authorization, 'Bearer test-token');
+});
+
 test('GitHub adapter rejects private, missing, rate limited and truncated sources', async () => {
   for (const [status, body, code] of [[200, { private: true, default_branch: 'main' }, 'private'], [404, {}, 'inaccessible'], [403, {}, 'rate_limited']] as const) {
     const adapter = new GitHubSourceAdapter((async () => Response.json(body, { status })) as typeof fetch);
