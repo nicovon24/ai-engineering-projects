@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000`. The server binds to localhost. Use **Load keyless demo** to try the same investigation, citation, and history flow with a deterministic fixture. Open-ended questions about live public repositories use Groq. Configure `GROQ_API_KEY` in an ignored `.env.local` file; `GROQ_MODEL` defaults to `openai/gpt-oss-20b`, and `GROQ_BASE_URL` can override the OpenAI-compatible API endpoint. See `.env.example`. The provider-backed answer path has focused mocked coverage but has not been checked with a live provider response.
+Open `http://127.0.0.1:3000`. The server binds to localhost. Use **Load keyless demo** to try the same investigation, citation, and history flow with a deterministic fixture. Open-ended questions about live public repositories use Groq. Configure `GROQ_API_KEY` in an ignored `.env.local` file; `GROQ_MODEL` defaults to `openai/gpt-oss-20b`, and `GROQ_BASE_URL` can override the OpenAI-compatible API endpoint. See `.env.example`. A live Groq tool-selection request succeeded, but a complete answer with citations remains unverified because GitHub rate-limited the subsequent source read.
 
 ## Investigation limits
 

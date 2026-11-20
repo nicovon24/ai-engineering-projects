@@ -54,7 +54,7 @@ The application SHALL start in Spanish, offer an accessible English choice, pers
 - **THEN** the interface remains in English and subsequent answer-generation requests receive English as the selected language
 
 ### Requirement: Groq-backed live answers
-The system SHALL use the configured Groq OpenAI-compatible chat-completions endpoint for open-ended live repository answers, keep credentials server-side, and validate returned citations against inspected evidence.
+The system SHALL use the configured Groq OpenAI-compatible chat-completions endpoint with strict JSON schemas for open-ended live repository answers, keep credentials server-side, and validate returned citations against inspected evidence.
 
 #### Scenario: Configured live answer provider
 - **WHEN** `GROQ_API_KEY` is configured and the user asks about a public repository

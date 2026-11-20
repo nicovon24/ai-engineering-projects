@@ -1,5 +1,5 @@
 export type Locale = 'es' | 'en';
-export type StopCode = 'invalid_repository' | 'inaccessible' | 'private' | 'rate_limited' | 'invalid_tool' | 'invalid_arguments' | 'limit' | 'source_error' | 'provider_error' | 'insufficient_evidence';
+export type StopCode = 'invalid_repository' | 'inaccessible' | 'private' | 'rate_limited' | 'invalid_tool' | 'invalid_arguments' | 'limit' | 'source_error' | 'provider_error' | 'provider_not_configured' | 'provider_authentication' | 'provider_rate_limited' | 'provider_invalid_request' | 'insufficient_evidence';
 
 export interface Repository { owner: string; repo: string; key: string; sha: string; url: string }
 export interface Evidence { id: string; path: string; startLine: number; endLine: number; excerpt: string; sha: string; url: string; originConversationId?: string }
